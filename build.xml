@@ -1,0 +1,120 @@
+<project name="GRB Impulse" default="dist" basedir="." >
+		
+	<target name="read">
+		<property file="${basedir}/common.properties"/>
+		<property file="${basedir}/build.properties"/>
+		<path id="project.classpath">  
+		  <fileset dir="${local.lib.dir}">
+		    <include name="*.jar"/>                                                  
+		  </fileset>    
+		  <fileset dir="${log4j.lib.dir}">
+		    <include name="*.jar"/>                                                  
+		  </fileset>    
+	    </path>
+		<tstamp>
+		    <format property="build.date" pattern="d-MMMM-yyyy HH:mm" locale="en,GB"/>
+		</tstamp>
+	</target>	
+	
+	<target name="init" depends="read">
+    	<mkdir dir="${basedir}/${output.dir.name}"/>
+
+    	<copy todir="${basedir}/${compile.tempsrc.dir.name}">
+    		<fileset dir="src"/>
+    	</copy>	
+		<replace file="${basedir}/${compile.tempsrc.dir.name}/${manifest.section.name}/${main.file}" token="@VERSION@" value="${load.version}"/>
+		<replace file="${basedir}/${compile.tempsrc.dir.name}/${manifest.section.name}/${main.file}" token="@BUILDDATE@" value="${build.date}"/>
+    </target>	
+
+    <target name="compile" depends="init">   
+        <javac  
+				source="${compile.source}"
+        		target="${compile.target}"
+			    debug="${compile.debug}" 
+        	    optimize="${compile.optimize}" 
+        	    srcdir="${basedir}/${compile.tempsrc.dir.name}" destdir="${basedir}/${output.dir.name}" 
+        	    includes="" excludes="**/test/*">
+       	        <classpath refid="project.classpath"/>
+        </javac>
+    </target>
+	
+	<target name="docs" depends="init" description="builds javadocs">
+		  <mkdir dir="${basedir}/${dist.dir}/docs/api"/>	
+		  <javadoc
+		  		   destdir="${basedir}/${dist.dir}/docs/api"
+		           author="false"
+		           version="true"
+		           use="true"
+		           windowtitle="${javadoc.window.title}"
+		  	       public="true"
+		  	       protected="false"
+				   private="false"
+		  	       overview="${basedir}/docs/specs/Overview.html"
+		  	       classpathref="project.classpath">
+            <fileset dir="${basedir}/src" defaultexcludes="no">
+           		<exclude name="**/test/*.java" />
+	        </fileset>
+		    <doctitle><![CDATA[<h1>${javadoc.title}</h1>]]></doctitle>
+		    <bottom><![CDATA[${javadoc.bottom}]]></bottom>
+		    <group title="${javadoc.group.title}" packages="${javadoc.packages}"/>
+		  </javadoc>		
+	</target>	
+	
+	<target name="build" depends="compile" description="build to a jar">
+		<mkdir dir="${basedir}/${dist.dir}"/>
+		<jar destfile="${basedir}/${dist.dir}/${jar.name}">
+			<fileset dir="${basedir}/${output.dir.name}">
+			</fileset>
+			<manifest>
+                <section name="${manifest.section.name}">
+                    <attribute name="Specification-Title" value="${manifest.specification-title}"/>
+                    <attribute name="Specification-Version" value="${manifest.specification-version}"/>
+                    <attribute name="Specification-Vendor" value="${manifest.specification-vendor}"/>
+                    <attribute name="Implementation-Title" value="${manifest.implementation-title}"/>
+                    <attribute name="Implementation-Version" value="${manifest.implementation-version}"/>
+                    <attribute name="Implementation-Vendor" value="${manifest.implementation-vendor}"/>
+                </section>
+            </manifest>
+		</jar>
+		<echo> created ${basedir}/${dist.dir}/${jar.name}</echo>
+	</target>
+
+	<target name="dist" depends="build" description="distribute jar to the lib directory">
+		<copy file="${log4j.lib.dir}/commons-logging-1.0.4.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${log4j.lib.dir}/commons-logging-api-1.0.4.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${log4j.lib.dir}/log4j-1.2.17.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${local.lib.dir}/grb-util-1.0.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${local.lib.dir}/grb-util-listenersrv-1.0.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${local.lib.dir}/grb-util-property-1.0.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${local.lib.dir}/grb-util-reactor-1.0.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${local.lib.dir}/grb-util-statesrv-1.0.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${local.lib.dir}/grb-util-timersrv-1.0.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="${local.lib.dir}/grb-util-transport-1.0.jar" todir="${basedir}/${dist.dir}"/>
+		<copy file="build/run.bat" todir="${basedir}/${dist.dir}"/>
+		<copy file="build/run.sh" todir="${basedir}/${dist.dir}"/>
+		<copy file="readme.txt" todir="${basedir}/${dist.dir}"/>
+		<copy file="release.txt" todir="${basedir}/${dist.dir}"/>
+		<copy file="config/log4j.properties" todir="${basedir}/${dist.dir}"/>
+    	<copy todir="${basedir}/${dist.dir}/config">
+    		<fileset dir="${basedir}/config"/>
+    	</copy>	
+	</target>
+
+	<target name="zip" depends="dist,docs" description="zip distribution">
+		<zip destfile="${basedir}/${output.dir.name}/${zip.name}">
+		    <zipfileset dir="${basedir}/${dist.dir}"/>
+		</zip>
+		<tar destfile="${basedir}/${output.dir.name}/${tar.name}" compression="gzip">
+		  <zipfileset src="${basedir}/${output.dir.name}/${zip.name}"/>
+		</tar>
+		<move file="${basedir}/${output.dir.name}/${zip.name}" todir="${basedir}/${dist.dir}"/>
+		<move file="${basedir}/${output.dir.name}/${tar.name}" todir="${basedir}/${dist.dir}"/>
+	</target>
+
+	<target name="clean" depends="read" description="cleans output">
+		<delete dir="${basedir}/${output.dir.name}"/>
+		<delete dir="${basedir}/${tempsrc.dir.name}"/>
+		<delete dir="${basedir}/${dist.dir}"/>
+	</target>	
+	
+</project>		

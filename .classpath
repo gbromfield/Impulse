@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/3rdParty/junit/junit.jar"/>
+	<classpathentry kind="lib" path="lib/3rdParty/log4j/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/3rdParty/log4j/commons-logging-api-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/3rdParty/log4j/log4j-1.2.17.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/local/grb-util-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/local/grb-util-listenersrv-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/local/grb-util-property-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/local/grb-util-reactor-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/local/grb-util-statesrv-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/local/grb-util-timersrv-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/local/grb-util-transport-1.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,50 @@
+1 "called" property doesn't work (add statistics or fix it) - works now
+2 add an easier way of printing data when passing through a transform - from the config file? Done. and added JMX as well.
+3 why does http get open 2 connections? bosch! Done.
+4 create a hex dump like printout utility. Done.
+5 add message tracing - uniquely identify the message and follow it through the transforms? might not work through transformations easily
+6 add property debug stack tracing to setValue code - problem is there is no log4j in property library currently. Done.
+7 add a way of printing out all transform properties (help.properties). Done.
+8 add a readme.txt file. Done.
+9 add a transform version number to complement the framework version number?
+10 add a "*" option for the Counter range to mean all. Done.
+11 make a project file for doing plugin development?
+12 make it a library?
+13 package documentation. Done.
+14 XA SMF protocol parsing. Done.
+15 Add odd and even to Counter transform. Done.
+16 Finish aggregator transform, and have it use 1 buffer on output.
+17 If right hand side of a link statement is not defined there is no error. Done.
+18 Explain benefits of using a tunnel over having an sdk do manipulations. tcp backpressure, closing of connections, late/delayed/duplicate messages
+19 add full smf parsing so that toString() prints something useful.
+20 show the config file name and location in JMX. Done
+21 add nth count to Counter transform. Done.
+22 Why does loglevel property set in one transform apply to all. Incorrectly scoped and initialised. Done.
+23 Add exiting from Impulse from JMX. Done.
+24 Add having a range [low-high] for the delay transform. Done.
+25 Fix Impulse.format() to format a Map<String, Object> object.
+26.Fix httpFramer to use a server instead of a tunnel. 
+27 Printer transform does not work.
+28 printer.properties uses a Server transform instead of a Tunnel (maybe ok). 
+29 Add the client ip address to the server, tunnel, wsserver attribute list. Done.
+30 Check transform debug logs for format. Basically turn on debugging of everything and check the output.
+31 Document how to turn on debugging for everything.
+32 For the socket server have a property that mirrors whether accepting is on/off and removed the actions. Done.
+33 Add a feature/transform that blocks? for a specified time. For example, a login is dropped for 3 minutes to let resources time out.
+34 Change from the .properties extension to .imp? And document that they have a properties format.
+35 Wildcard -Dtransform.tunnel.serverIPPort=192.168.160.186:55555 -Dtransform.tunnel1.serverIPPort=192.168.160.186:55555 
+   -Dtransform.tunnel2.serverIPPort=192.168.160.186:55555 so that it is one system property. Done.
+36 Look into possibility of inlining this into client code.
+37 In the sample config files put all the properties even if they are set to default.
+38 After framing, the input buffer from the tunnel needs rewinding or need to use a copy.
+39 Printing of ByteBuffers needs to take into account the index position rather than printing out the backing array.
+40 Command line -D doesn't work. Try with wildcards as well. Done.
+41 Rename JMXDelayer to just Delayer?
+42 Make sure framers can handle more than one message per buffer.
+43 Fix up continuation messages for WebSockets.
+44 Add a transform for breaking WebSockets data messages into continuations? or does the sending client take care of that.
+45 Break the Tunnel/Server up into SocketInbound and SocketOutbound. Done.
+46 For HTTPFramer, allow specializing on text msgs, binary msgs, close msg, etc...
+47 For HTTPFramer sample, the close conection WS message should be propagated through the tunnel
+48 Make a sample that's WS from the client to the tunnel and smf to the router (or whatever the payload is). Put this in core.
+49 Make the listen port in ServerSocket a list/range. Done.
