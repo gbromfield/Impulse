@@ -88,4 +88,4 @@ affect on new transforms based on that template.
  
 Running in Eclipse
 In order to run in eclipse and debug its handy to have the following VM arguments specified.
--Dlog4j.debug -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=12333 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+-Dlog4j.debug -Dlog4j.configuration="file:log4j.properties" -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=12333 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false

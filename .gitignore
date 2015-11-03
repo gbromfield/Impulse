@@ -2,3 +2,5 @@ _antOutput
 _antSrc
 bin
 dist
+.idea
+out
