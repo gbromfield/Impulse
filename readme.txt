@@ -37,10 +37,8 @@ The basic syntax follows (order is not important):
 - transform.[name].[property1]=[someValue] - for setting property1 value to someValue on a transform.
 What properties can be set are documented in the transform javadoc.
 - link.out.[output transform].[output name]=[input transform].[input name]([input arguments,...]) - for creating connections.
-One output can go to many inputs. In this case the outputs need to be numbered like: 
-link.out.[output transform].[output name].1=[input transform 1].[input name]([args]) and 
-link.out.[output transform].[output name].2=[input transform 2].[input name]([args]). 
-The outputs are called in numerical order. 
+One output can go to many inputs. In this case the outputs need in a semi-colon ordered list of invocation:
+link.out.[output transform].[output name]=[input transform 1].[input name]([args]);[input transform 2].[input name]([args]).
 
 Getting Started
 For starting Impulse, there is a run.sh and run.bat startup files that use the
