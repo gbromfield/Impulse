@@ -1,11 +1,6 @@
 package com.grb.impulse.plugins;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.TreeSet;
+import java.util.*;
 
 import com.grb.impulse.BaseTransform;
 import com.grb.impulse.Connection;
@@ -66,7 +61,7 @@ public class TimeDelayer extends BaseTransform {
 	protected class DelayerTimerTask extends TimerTask {
 		private TimeDelayer _delayer;
 		private Map<String, Object> _argMap;
-		private Set<Connection> _conns;
+		private List<Connection> _conns;
 		
 		private DelayerTimerTask(TimeDelayer delayer, Map<String, Object> argMap,  boolean usePersistentConnections) {
 			_delayer = delayer;
@@ -75,7 +70,7 @@ public class TimeDelayer extends BaseTransform {
 			    _conns = _delayer.getConnections("delayerOut");
 			    // create a copy because on dispose this set is cleared
 			    if (_conns != null) {
-			        _conns = new TreeSet<Connection>(_conns); 
+			        _conns = new ArrayList<Connection>(_conns);
 			    }
 			} else {
                 _conns = null;

@@ -2,15 +2,7 @@ package com.grb.impulse;
 
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -49,7 +41,7 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 	protected String _instanceName;
 	protected TransformCreationContext _transformCreationContext;
 	protected Log _logger;
-	protected TreeMap<String, TreeSet<Connection>> _connections;
+	protected TreeMap<String, ArrayList<Connection>> _connections;
 	protected Map<String, Property<?>> _properties;
 	protected MBeanInfo _mBeanInfo;
 	protected ObjectName _objectName;
@@ -69,7 +61,7 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
         _instanceName = instanceName;
         _transformCreationContext = transformCreationContext;
         _logger = null;
-        _connections = new TreeMap<String, TreeSet<Connection>>();
+        _connections = new TreeMap<String, ArrayList<Connection>>();
         _properties = null;
         _mBeanInfo = null;
         _objectName = null;
@@ -215,14 +207,14 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 	}
 	
 	public boolean hasOutputConnection(String outputPortName) {
-        TreeSet<Connection> connections = _connections.get(outputPortName);
+        ArrayList<Connection> connections = _connections.get(outputPortName);
         if ((connections != null) && (connections.size() > 0)) {
             return true;
         }
         return false;
 	}
 	
-	public Set<Connection> getConnections(String outputPortName) {
+	public List<Connection> getConnections(String outputPortName) {
 	    return _connections.get(outputPortName);
 	}
 	
@@ -235,12 +227,11 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 	 * @param args String/Object pairs for the argument map that are parameters for the next transform.
 	 */
     public void next(String outputPortName, Map<String, Object> argMap, Object... args) {
-        TreeSet<Connection> connections = _connections.get(outputPortName);
+        ArrayList<Connection> connections = _connections.get(outputPortName);
         if ((connections != null) && (connections.size() > 0)) {
-            Iterator<Connection> it = connections.iterator();
-            while(it.hasNext()) {
-                Connection c = it.next();
-                next(c, argMap, args);
+			for(int i = 0; i < connections.size(); i++) {
+				Connection c = connections.get(i);
+				next(c, argMap, args);
             }
         }
     }
@@ -343,28 +334,27 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 		    unregisterMBean();
 		    // call nexts
 		    HashSet<String> visited = new HashSet<String>();
-		    Iterator<TreeSet<Connection>> it = _connections.values().iterator();
+		    Iterator<ArrayList<Connection>> it = _connections.values().iterator();
 		    while(it.hasNext()) {
-		        TreeSet<Connection> connections = it.next();
-		        Iterator<Connection> connIt = connections.iterator();
-		        while(connIt.hasNext()) {
-		            Connection connection = connIt.next();
-		            Transform transform = connection.getInputTransform();
-		            if (!visited.contains(transform.getInstanceName())) {
-		            	visited.add(transform.getInstanceName());
-		            	try {
-		            		transform.dispose();
-		            	} catch(Throwable t) {
-		                	if ((_logger != null) && (_logger.isErrorEnabled())) {
-		                		_logger.error("Exception following connection: " + connection, t);
-		                	}
-		                	Log inLogger = transform.getLog();
-		                	if ((inLogger != null) && (inLogger.isErrorEnabled())) {
-		                		inLogger.error("Exception following connection: " + connection, t);
-		                	}
-		            	}
-		            }
-		    	}
+		        ArrayList<Connection> connections = it.next();
+                for (int i = 0; i < connections.size(); i++) {
+                    Connection connection = connections.get(i);
+                    Transform transform = connection.getInputTransform();
+                    if (!visited.contains(transform.getInstanceName())) {
+                        visited.add(transform.getInstanceName());
+                        try {
+                            transform.dispose();
+                        } catch(Throwable t) {
+                            if ((_logger != null) && (_logger.isErrorEnabled())) {
+                                _logger.error("Exception following connection: " + connection, t);
+                            }
+                            Log inLogger = transform.getLog();
+                            if ((inLogger != null) && (inLogger.isErrorEnabled())) {
+                                inLogger.error("Exception following connection: " + connection, t);
+                            }
+                        }
+                    }
+                }
 		    }
 		    // dispose of connections to help garbage collection
 		    _connections.clear();
@@ -397,14 +387,9 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 	}
 	
 	protected void addConnection(String outPortName, Connection connection) {
-	    TreeSet<Connection> connections = _connections.get(outPortName);
+	    ArrayList<Connection> connections = _connections.get(outPortName);
 		if (connections == null) {
-			connections = new TreeSet<Connection>(new Comparator<Connection>() {
-                @Override
-                public int compare(Connection o1, Connection o2) {
-                    return o1.getConnectionDefinition().getOutputPortIndex() - o2.getConnectionDefinition().getOutputPortIndex();
-                }
-            });
+			connections = new ArrayList<Connection>();
 			_connections.put(outPortName, connections);
 		}
 		connections.add(connection);

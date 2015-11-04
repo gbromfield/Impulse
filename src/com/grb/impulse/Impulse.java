@@ -417,74 +417,73 @@ public class Impulse implements DynamicMBean {
                 if (key.startsWith("link.out.")) {
                     try {
                         String[] keyParts = key.substring(9).split("\\.");
-                        if ((keyParts.length == 2) || (keyParts.length == 3)) {
+                        if (keyParts.length == 2) {
                             String outTransformName = keyParts[0];
                             String outPortName = keyParts[1];
-                            int outPortIndex = 0;
-                            if (keyParts.length == 3) {
-                                outPortIndex = Integer.parseInt(keyParts[2].trim());
-                            }
-                            
-                            // parse the arguments
-                            int startBracket = value.indexOf('(');
-                            int endBracket = value.indexOf(')', startBracket);
-                            if ((startBracket == -1) || (endBracket == -1)) {
-                                throw new IllegalArgumentException(String.format("Input Port Definition %s has no or incomplete argument brackets", value));
-                            }
-                            String inputPortStr = value.substring(0, startBracket);
-                            String[] inputPortArgsStr = value.substring(startBracket+1, endBracket).split(",");
-                            ArrayList<String> argList = new ArrayList<String>();
-                            for(int i = 0; i < inputPortArgsStr.length; i++) {
-                                String arg = inputPortArgsStr[i].trim();
-                                if (arg.length() > 0) {
-                                    argList.add(arg);
-                                }
-                            }
-                            String[] inputArgs = new String[argList.size()];
-                            for(int i = 0; i < argList.size(); i++) {
-                                inputArgs[i] = argList.get(i);
-                            }
 
-                            String[] valueParts = inputPortStr.split("\\.");
-                            if (valueParts.length == 2) {
-                                String inTransformName = valueParts[0].trim();
-                                String inPortName = valueParts[1].trim();
-                                TransformContext outTransformCtx = TransformContexts.get(outTransformName);
-                                if (outTransformCtx == null) {
-                                    throw new IllegalArgumentException(String.format("Unknown transform definition %s", outTransformName));
+                            String[] paramList = value.split(";");
+                            for(int j = 0; j < paramList.length; j++) {
+                                // parse the arguments
+                                int startBracket = paramList[j].indexOf('(');
+                                int endBracket = paramList[j].indexOf(')', startBracket);
+                                if ((startBracket == -1) || (endBracket == -1)) {
+                                    throw new IllegalArgumentException(String.format("Input Port Definition %s has no or incomplete argument brackets", paramList[j]));
                                 }
-                                TransformContext inTransformCtx = TransformContexts.get(inTransformName);
-                                if (inTransformCtx == null) {
-                                    throw new IllegalArgumentException(String.format("Unknown transform definition %s", inTransformName));
-                                }                                
-                                TransformDefinition outTransformDef = outTransformCtx.getTransformDefinition();
-                                PortDefinition outPortDef = outTransformDef.getOutputPortDefinition(outPortName);
-                                if (outPortDef == null) {
-                                    throw new IllegalArgumentException(String.format("Output Port Definition %s not found", outPortName));
+                                String inputPortStr = paramList[j].substring(0, startBracket);
+                                String[] inputPortArgsStr = paramList[j].substring(startBracket+1, endBracket).split(",");
+                                ArrayList<String> argList = new ArrayList<String>();
+                                for(int i = 0; i < inputPortArgsStr.length; i++) {
+                                    String arg = inputPortArgsStr[i].trim();
+                                    if (arg.length() > 0) {
+                                        argList.add(arg);
+                                    }
                                 }
-                                TransformDefinition inTransformDef = inTransformCtx.getTransformDefinition();
-                                PortDefinition inPortDef = (PortDefinition)inTransformDef.getInputPortDefinition(inPortName);
-                                if (inPortDef == null) {
-                                    throw new IllegalArgumentException(String.format("Input Port Definition %s not found", inPortName));
+                                String[] inputArgs = new String[argList.size()];
+                                for(int i = 0; i < argList.size(); i++) {
+                                    inputArgs[i] = argList.get(i);
                                 }
-                                validateArguments(inputArgs, inPortDef);
-                                ConnectionDefinition connectionDef = new ConnectionDefinition(
-                                        outTransformName, outTransformDef, outPortDef, outPortIndex,
-                                        inTransformName, inTransformDef, inPortDef, inputArgs);
-                                Log outLogger = LogFactory.getLog(outTransformDef.getTransformClass());
-                                Log inLogger = LogFactory.getLog(inTransformDef.getTransformClass());
-                                if (outLogger.isInfoEnabled()) {
-                                    outLogger.info("Adding Connection Definition: " + connectionDef);
+
+                                String[] valueParts = inputPortStr.split("\\.");
+                                if (valueParts.length == 2) {
+                                    String inTransformName = valueParts[0].trim();
+                                    String inPortName = valueParts[1].trim();
+                                    TransformContext outTransformCtx = TransformContexts.get(outTransformName);
+                                    if (outTransformCtx == null) {
+                                        throw new IllegalArgumentException(String.format("Unknown transform definition %s", outTransformName));
+                                    }
+                                    TransformContext inTransformCtx = TransformContexts.get(inTransformName);
+                                    if (inTransformCtx == null) {
+                                        throw new IllegalArgumentException(String.format("Unknown transform definition %s", inTransformName));
+                                    }
+                                    TransformDefinition outTransformDef = outTransformCtx.getTransformDefinition();
+                                    PortDefinition outPortDef = outTransformDef.getOutputPortDefinition(outPortName);
+                                    if (outPortDef == null) {
+                                        throw new IllegalArgumentException(String.format("Output Port Definition %s not found", outPortName));
+                                    }
+                                    TransformDefinition inTransformDef = inTransformCtx.getTransformDefinition();
+                                    PortDefinition inPortDef = (PortDefinition)inTransformDef.getInputPortDefinition(inPortName);
+                                    if (inPortDef == null) {
+                                        throw new IllegalArgumentException(String.format("Input Port Definition %s not found", inPortName));
+                                    }
+                                    validateArguments(inputArgs, inPortDef);
+                                    ConnectionDefinition connectionDef = new ConnectionDefinition(
+                                            outTransformName, outTransformDef, outPortDef,
+                                            inTransformName, inTransformDef, inPortDef, inputArgs);
+                                    Log outLogger = LogFactory.getLog(outTransformDef.getTransformClass());
+                                    Log inLogger = LogFactory.getLog(inTransformDef.getTransformClass());
+                                    if (outLogger.isInfoEnabled()) {
+                                        outLogger.info("Adding Connection Definition: " + connectionDef);
+                                    }
+                                    if (inLogger.isInfoEnabled()) {
+                                        inLogger.info("Adding Connection Definition: " + connectionDef);
+                                    }
+                                    outTransformCtx.addConnectionDefinition(connectionDef);
+                                } else {
+                                    throw new IllegalArgumentException(String.format("link.out property must have 2 part value, %d parts found", valueParts.length));
                                 }
-                                if (inLogger.isInfoEnabled()) {
-                                    inLogger.info("Adding Connection Definition: " + connectionDef);
-                                }
-                                outTransformCtx.addConnectionDefinition(connectionDef);
-                            } else {
-                                throw new IllegalArgumentException(String.format("link.out property must have 2 part value, %d parts found", valueParts.length));
                             }
                         } else {
-                            throw new IllegalArgumentException(String.format("Expected 4 or 5 part link.out property, %d parts found", keyParts.length + 2));
+                            throw new IllegalArgumentException(String.format("Expected 4 part link.out property, %d parts found", keyParts.length + 2));
                         }
                     } catch(Exception e) {
                         if (Logger.isErrorEnabled()) {
