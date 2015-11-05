@@ -3,3 +3,7 @@ Version 1.0
 	
 Version 1.1
 	Added named arguments in the config files for the connections. This is not a backward compatible change.
+
+Version 1.2
+    Changed specifying of multiple links from the link.out.?.?.1 syntax to be a semi-colon ordered list. This is a non
+    backward compatible change.

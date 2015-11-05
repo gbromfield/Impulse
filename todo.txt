@@ -48,3 +48,9 @@
 47 For HTTPFramer sample, the close conection WS message should be propagated through the tunnel
 48 Make a sample that's WS from the client to the tunnel and smf to the router (or whatever the payload is). Put this in core.
 49 Make the listen port in ServerSocket a list/range. Done.
+50 Add handling of TL1 termination characters in quotes and comments.
+51 Add handling of TL1 continuation characters.
+52 Add additional parsing of TL1 starting with TID and CTAG.
+53 Add the use of javascript in the transform to do custom handling.
+54 Add a transform that drops TL1 responses from an NE.
+55 Add the ability to send a TL1 message from a file (maybe this is accomplished with javascript).
