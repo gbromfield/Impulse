@@ -1,13 +1,10 @@
 package com.grb.impulse;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -94,6 +91,11 @@ public class TransformContext implements DynamicMBean {
     private String _loggerClass;
     private Log _logger;
 
+    /**
+     * Javascript Extension
+     */
+    private HashMap<String, JavascriptContext> _javascriptMap;
+
     @SuppressWarnings("unchecked")
     public TransformContext(String name) throws PropertyVetoException, PropertyConversionException, ClassNotFoundException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         _name = name;
@@ -150,6 +152,7 @@ public class TransformContext implements DynamicMBean {
         
         _loggerClass = null;
         _logger = null;
+        _javascriptMap = null;
     }
     
     public String getName() {
@@ -213,7 +216,34 @@ public class TransformContext implements DynamicMBean {
     public TransformFactory getTransformFactory() {
         return _transformFactory;
     }
-    
+
+    public void addJavascriptContext(String outPortName, JavascriptContext jsCtx) {
+        if (_javascriptMap == null) {
+            _javascriptMap = new HashMap<>();
+        }
+        JavascriptContext ctx = _javascriptMap.get(outPortName);
+        if (ctx != null) {
+            throw new IllegalArgumentException(String.format("A maximum of one javascript entry is allowed on output ports (%s)", outPortName));
+        }
+        _javascriptMap.put(outPortName, jsCtx);
+    }
+
+    public JavascriptContext getJavascriptContext(String outPortName) {
+        if (_javascriptMap != null) {
+            return _javascriptMap.get(outPortName);
+        }
+        return null;
+    }
+
+    public JavascriptContext[] getJavascriptContexts() {
+        if (_javascriptMap != null) {
+            JavascriptContext[] ctxs = new JavascriptContext[_javascriptMap.size()];
+            ctxs = _javascriptMap.values().toArray(ctxs);
+            return ctxs;
+        }
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
     public void initProperties() throws PropertyVetoException, PropertyConversionException {
         try {
