@@ -1,5 +1,6 @@
 package com.grb.impulse;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -18,6 +19,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.script.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -228,10 +230,71 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 	 */
     public void next(String outputPortName, Map<String, Object> argMap, Object... args) {
         ArrayList<Connection> connections = _connections.get(outputPortName);
+        String[] inputConnectionNames = null;
         if ((connections != null) && (connections.size() > 0)) {
+            inputConnectionNames = new String[connections.size()];
+            for(int i = 0; i < connections.size(); i++) {
+                Connection c = connections.get(i);
+                inputConnectionNames[i] = c.getName();
+            }
+        }
+
+        JavascriptContext jsCtx = getTransformContext().getJavascriptContext(outputPortName);
+        String[] outputConnectionNames = null;
+        if (jsCtx == null) {
+            outputConnectionNames = inputConnectionNames;
+        } else {
+            ScriptEngine engine = _transformCreationContext.getJavascriptEngine();
+            Invocable inv = (Invocable) engine;
+            try {
+                if ((_logger != null) && (_logger.isDebugEnabled())) {
+                    _logger.debug(String.format("About to execute javascript file %s, function %s", jsCtx.file.getName(), jsCtx.function));
+                }
+                Object tmpObj = inv.invokeFunction(jsCtx.function, outputPortName, argMap, args,
+                        inputConnectionNames);
+                if (!(tmpObj instanceof String[])) {
+                    if ((_logger != null) && (_logger.isErrorEnabled())) {
+                        _logger.error(String.format("Exception executing javascript file %s, function %s, expecting a String[] return value got %s",
+                                jsCtx.file.getName(), jsCtx.function, tmpObj.getClass().getName()));
+                    }
+                } else {
+                    outputConnectionNames = (String[])tmpObj;
+                }
+                if ((_logger != null) && (_logger.isDebugEnabled())) {
+                    if ((outputConnectionNames == null) || (outputConnectionNames.length == 0)) {
+                        _logger.debug(String.format("Executed javascript file %s, function %s, returned null",
+                                jsCtx.file.getName(), jsCtx.function));
+                    } else {
+                        StringBuilder bldr = new StringBuilder("[");
+                        for(int i = 0; i < outputConnectionNames.length; i++) {
+                            if (i > 0) {
+                                bldr.append(", ");
+                            }
+                            bldr.append(outputConnectionNames[i]);
+                        }
+                        bldr.append("]");
+                        _logger.debug(String.format("Executed javascript file %s, function %s, returned %s",
+                                jsCtx.file.getName(), jsCtx.function, bldr.toString()));
+                    }
+                }
+            } catch (Exception e) {
+                if ((_logger != null) && (_logger.isErrorEnabled())) {
+                    _logger.error(String.format("Exception executing javascript file %s, function %s",
+                            jsCtx.file.getName(), jsCtx.function), e);
+                }
+            }
+        }
+
+        if ((connections != null) && (connections.size() > 0) &&
+                (outputConnectionNames != null) && (outputConnectionNames.length > 0)) {
 			for(int i = 0; i < connections.size(); i++) {
 				Connection c = connections.get(i);
-				next(c, argMap, args);
+                for(int j = 0; j < outputConnectionNames.length; j++) {
+                    if (c.getName().equals(outputConnectionNames[j])) {
+                        next(c, argMap, args);
+                        break;
+                    }
+                }
             }
         }
     }
