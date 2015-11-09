@@ -25,14 +25,14 @@ public class TransformCreationContext {
     }
         
     public Transform getInstance(TransformContext transformCtx, Object... args) throws Exception {
-        JavascriptContext[] jsCtxs = transformCtx.getJavascriptContexts();
+        JavascriptDefinition[] jsCtxs = transformCtx.getJavascriptDefinitions();
         if (jsCtxs != null) {
             if (_scriptEngineManager == null) {
                 _scriptEngineManager = new ScriptEngineManager();
                 _scriptEngine = _scriptEngineManager.getEngineByName("JavaScript");
             }
             for(int i = 0; i < jsCtxs.length; i++) {
-                JavascriptContext ctx = jsCtxs[i];
+                JavascriptDefinition ctx = jsCtxs[i];
                 _scriptEngine.eval(new java.io.FileReader(ctx.file));
             }
         }
