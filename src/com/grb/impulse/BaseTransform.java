@@ -1,6 +1,5 @@
 package com.grb.impulse;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -229,68 +228,56 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 	 * @param args String/Object pairs for the argument map that are parameters for the next transform.
 	 */
     public void next(String outputPortName, Map<String, Object> argMap, Object... args) {
+        ConnectionContext inConnCtx = new ConnectionContext();
+        ConnectionContext outConnCtx = inConnCtx;
+        inConnCtx.log = _logger;
+        inConnCtx.outputPortName = outputPortName;
+        inConnCtx.argMap = argMap;
+        inConnCtx.args = args;
+        inConnCtx.connectionNames = null;
         ArrayList<Connection> connections = _connections.get(outputPortName);
-        String[] inputConnectionNames = null;
         if ((connections != null) && (connections.size() > 0)) {
-            inputConnectionNames = new String[connections.size()];
+            inConnCtx.connectionNames = new String[connections.size()];
             for(int i = 0; i < connections.size(); i++) {
                 Connection c = connections.get(i);
-                inputConnectionNames[i] = c.getName();
+                inConnCtx.connectionNames[i] = c.getName();
             }
         }
 
-        JavascriptContext jsCtx = getTransformContext().getJavascriptContext(outputPortName);
-        String[] outputConnectionNames = null;
-        if (jsCtx == null) {
-            outputConnectionNames = inputConnectionNames;
-        } else {
+        JavascriptDefinition jsDef = getTransformContext().getJavascriptDefinition(outputPortName);
+        if (jsDef != null) {
             ScriptEngine engine = _transformCreationContext.getJavascriptEngine();
             Invocable inv = (Invocable) engine;
             try {
                 if ((_logger != null) && (_logger.isDebugEnabled())) {
-                    _logger.debug(String.format("About to execute javascript file %s, function %s", jsCtx.file.getName(), jsCtx.function));
+                    _logger.debug(String.format("About to execute javascript file %s, function %s", jsDef.file.getName(), jsDef.function));
                 }
-                Object tmpObj = inv.invokeFunction(jsCtx.function, outputPortName, argMap, args,
-                        inputConnectionNames);
-                if (!(tmpObj instanceof String[])) {
+                Object tmpObj = inv.invokeFunction(jsDef.function, inConnCtx);
+                if (!(tmpObj instanceof ConnectionContext)) {
                     if ((_logger != null) && (_logger.isErrorEnabled())) {
                         _logger.error(String.format("Exception executing javascript file %s, function %s, expecting a String[] return value got %s",
-                                jsCtx.file.getName(), jsCtx.function, tmpObj.getClass().getName()));
+                                jsDef.file.getName(), jsDef.function, tmpObj.getClass().getName()));
                     }
                 } else {
-                    outputConnectionNames = (String[])tmpObj;
+                    outConnCtx = (ConnectionContext)tmpObj;
                 }
                 if ((_logger != null) && (_logger.isDebugEnabled())) {
-                    if ((outputConnectionNames == null) || (outputConnectionNames.length == 0)) {
-                        _logger.debug(String.format("Executed javascript file %s, function %s, returned null",
-                                jsCtx.file.getName(), jsCtx.function));
-                    } else {
-                        StringBuilder bldr = new StringBuilder("[");
-                        for(int i = 0; i < outputConnectionNames.length; i++) {
-                            if (i > 0) {
-                                bldr.append(", ");
-                            }
-                            bldr.append(outputConnectionNames[i]);
-                        }
-                        bldr.append("]");
-                        _logger.debug(String.format("Executed javascript file %s, function %s, returned %s",
-                                jsCtx.file.getName(), jsCtx.function, bldr.toString()));
-                    }
+                    _logger.debug(String.format("Executed javascript file %s, function %s, returned %s",
+                            jsDef.file.getName(), jsDef.function, outConnCtx));
                 }
             } catch (Exception e) {
                 if ((_logger != null) && (_logger.isErrorEnabled())) {
                     _logger.error(String.format("Exception executing javascript file %s, function %s",
-                            jsCtx.file.getName(), jsCtx.function), e);
+                            jsDef.file.getName(), jsDef.function), e);
                 }
             }
         }
 
-        if ((connections != null) && (connections.size() > 0) &&
-                (outputConnectionNames != null) && (outputConnectionNames.length > 0)) {
+        if ((outConnCtx.connectionNames != null) && (outConnCtx.connectionNames.length > 0)) {
 			for(int i = 0; i < connections.size(); i++) {
 				Connection c = connections.get(i);
-                for(int j = 0; j < outputConnectionNames.length; j++) {
-                    if (c.getName().equals(outputConnectionNames[j])) {
+                for(int j = 0; j < outConnCtx.connectionNames.length; j++) {
+                    if (c.getName().equals(outConnCtx.connectionNames[j])) {
                         next(c, argMap, args);
                         break;
                     }

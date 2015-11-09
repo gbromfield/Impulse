@@ -1,6 +1,5 @@
 package com.grb.impulse;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -94,7 +93,7 @@ public class TransformContext implements DynamicMBean {
     /**
      * Javascript Extension
      */
-    private HashMap<String, JavascriptContext> _javascriptMap;
+    private HashMap<String, JavascriptDefinition> _javascriptMap;
 
     @SuppressWarnings("unchecked")
     public TransformContext(String name) throws PropertyVetoException, PropertyConversionException, ClassNotFoundException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -217,29 +216,29 @@ public class TransformContext implements DynamicMBean {
         return _transformFactory;
     }
 
-    public void addJavascriptContext(String outPortName, JavascriptContext jsCtx) {
+    public void addJavascriptDefinition(String outPortName, JavascriptDefinition jsDef) {
         if (_javascriptMap == null) {
             _javascriptMap = new HashMap<>();
         }
-        JavascriptContext ctx = _javascriptMap.get(outPortName);
-        if (ctx != null) {
+        JavascriptDefinition def = _javascriptMap.get(outPortName);
+        if (def != null) {
             throw new IllegalArgumentException(String.format("A maximum of one javascript entry is allowed on output ports (%s)", outPortName));
         }
-        _javascriptMap.put(outPortName, jsCtx);
+        _javascriptMap.put(outPortName, jsDef);
     }
 
-    public JavascriptContext getJavascriptContext(String outPortName) {
+    public JavascriptDefinition getJavascriptDefinition(String outPortName) {
         if (_javascriptMap != null) {
             return _javascriptMap.get(outPortName);
         }
         return null;
     }
 
-    public JavascriptContext[] getJavascriptContexts() {
+    public JavascriptDefinition[] getJavascriptDefinitions() {
         if (_javascriptMap != null) {
-            JavascriptContext[] ctxs = new JavascriptContext[_javascriptMap.size()];
-            ctxs = _javascriptMap.values().toArray(ctxs);
-            return ctxs;
+            JavascriptDefinition[] defs = new JavascriptDefinition[_javascriptMap.size()];
+            defs = _javascriptMap.values().toArray(defs);
+            return defs;
         }
         return null;
     }

@@ -442,10 +442,10 @@ public class Impulse implements DynamicMBean {
                                     if (!jsFile.exists()) {
                                         throw new IllegalArgumentException(String.format("Input Port Definition %s references a javascript file that doesn't exist - %s", paramList[j], jsFilename));
                                     }
-                                    JavascriptContext jsCtx = new JavascriptContext();
+                                    JavascriptDefinition jsCtx = new JavascriptDefinition();
                                     jsCtx.file = jsFile;
                                     jsCtx.function = jsFunction;
-                                    outTransformCtx.addJavascriptContext(outPortName, jsCtx);
+                                    outTransformCtx.addJavascriptDefinition(outPortName, jsCtx);
                                 } else {
                                     // parse the arguments
                                     int startBracket = paramList[j].indexOf('(');

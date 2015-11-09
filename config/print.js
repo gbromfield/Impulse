@@ -1,10 +1,16 @@
-function printArgs(outputPortName, argMap, args, connectionNames) {
-    print('outputPortName=' + outputPortName);
-    for (i = 0; i < args.length; i++) {
-        print('args=' + args[i]);
-    }
-    for (i = 0; i < connectionNames.length; i++) {
-        print('connection=' + connectionNames[i]);
-    }
-    return connectionNames;
+/**
+ * Prints the Connection Context.
+ *
+ * @param connectionContext ConnectionContext to print.
+ * @returns {*}
+ */
+function printArgs(connectionContext) {
+    connectionContext.log.info('connectionContext=' + connectionContext);
+    /**
+     * return the input connection context without modification
+     * if you want to have a script act as defined in the configuration
+     * file.
+     * To change the behavior return an appropriate connection context.
+     */
+    return connectionContext;
 }
