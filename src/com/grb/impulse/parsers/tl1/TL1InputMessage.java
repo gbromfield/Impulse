@@ -11,9 +11,8 @@ public class TL1InputMessage extends TL1Message {
 
     private static final int INITIAL_BUFFER_SIZE = 100;
 
-    public TL1InputMessage(byte[] preamble, int offset, int length) throws TL1MessageMaxSizeExceededException {
+    public TL1InputMessage() throws TL1MessageMaxSizeExceededException {
         super(INITIAL_BUFFER_SIZE);
-        parse(preamble, offset, length);
     }
 
     public boolean parse(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException {
