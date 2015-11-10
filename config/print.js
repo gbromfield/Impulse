@@ -4,7 +4,7 @@
  * @param connectionContext ConnectionContext to print.
  * @returns {*}
  */
-function printArgs(connectionContext) {
+function printConnectionContext(connectionContext) {
     connectionContext.log.info('connectionContext=' + connectionContext);
     /**
      * return the input connection context without modification
