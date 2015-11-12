@@ -5,9 +5,9 @@ package com.grb.impulse.parsers.tl1;
  */
 public class TL1PFAckMessage extends TL1AckMessage {
 
-    final static public byte[] preamble = "PF ".getBytes();
+    final static public byte[] PREAMBLE = "PF ".getBytes();
 
-    public TL1PFAckMessage() {
-        super(preamble);
+    public TL1PFAckMessage() throws TL1MessageMaxSizeExceededException {
+        super();
     }
 }

@@ -10,15 +10,42 @@ abstract public class TL1OutputMessage extends TL1Message {
      */
     public static int MAX_SIZE = 8192;
 
-    final static public byte[] responseCode = "\r\nM ".getBytes();
-    final static public byte[] criticalAlarmCode = "\r\n*C".getBytes();
-    final static public byte[] majorAlarmCode = "\r\n**".getBytes();
-    final static public byte[] minorAlarmCode = "\r\n* ".getBytes();
-    final static public byte[] nonAlarmCode = "\r\nA ".getBytes();
+    public static final byte[] PREAMBLE = "\r\n\n   ".getBytes();
 
-    private static final int INITIAL_BUFFER_SIZE = 500;
+    public static final int FINGERPRINT_SIZE = 4;
 
-    protected TL1OutputMessage() {
-        super(INITIAL_BUFFER_SIZE);
+    public static final byte[] RESPONSE_CODE = "\r\nM ".getBytes();
+    public static final byte[] CRITICAL_ALARM_CODE = "\r\n*C".getBytes();
+    public static final byte[] MAJOR_ALARM_CODE = "\r\n**".getBytes();
+    public static final byte[] MINOR_ALARM_CODE = "\r\n* ".getBytes();
+    public static final byte[] NON_ALARM_CODE = "\r\nA ".getBytes();
+
+    public static int DEFAULT_INITIAL_BUFFER_SIZE = 1024;
+
+    protected int _messageStartIdx;
+
+    protected TL1OutputMessage(int bufferSize) throws TL1MessageMaxSizeExceededException {
+        this(bufferSize, null, 0, -1, 0);
+    }
+
+    protected TL1OutputMessage(byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException {
+        this(DEFAULT_INITIAL_BUFFER_SIZE, preamble, offset, messageStartIdx, length);
+    }
+
+    protected TL1OutputMessage(int bufferSize, byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException {
+        super(bufferSize);
+        _messageStartIdx = messageStartIdx;
+        if (preamble != null) {
+            _buffer.write(preamble, offset, length);
+        }
+    }
+
+    protected boolean parse(byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException {
+        _messageStartIdx = messageStartIdx;
+        return parse(preamble, offset, length);
+    }
+
+    public int getMessageStartIdx() {
+        return _messageStartIdx;
     }
 }

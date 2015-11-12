@@ -57,6 +57,12 @@ abstract public class TL1Decoder {
                         cmdIdx++;
                         String tl1Str = msg.toString();
                         String expectedTL1Str = cmds[cmdIdx];
+                        cmdIdx++;
+                        int startIndex = 0;
+                        if (msg instanceof TL1OutputMessage) {
+                            startIndex = ((TL1OutputMessage)msg).getMessageStartIdx();
+                        }
+                        int expectedStartIndex = Integer.valueOf(cmds[cmdIdx]);
                         boolean error = false;
                         if (!simpleName.equals(expectedSimpleName)) {
                             System.out.println("---FAILED: expected class name of " + expectedSimpleName);
@@ -64,6 +70,10 @@ abstract public class TL1Decoder {
                         }
                         if (!tl1Str.equals(expectedTL1Str)) {
                             System.out.println("---FAILED: expected TL1 string of " + expectedTL1Str);
+                            error = true;
+                        }
+                        if (startIndex != expectedStartIndex) {
+                            System.out.println("---FAILED: expected TL1 start index of " + expectedStartIndex);
                             error = true;
                         }
                         if (error) {

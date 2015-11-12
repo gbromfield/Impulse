@@ -144,7 +144,7 @@ public class Impulse implements DynamicMBean {
 
         Property<Integer> intProp = new Property<Integer>(BYTE_ARRAY_FORMATTER_LIMIT_SIZE_PROPERTY, ByteArrayFormatter.DEFAULT_LIMIT_SIZE,
         		new PropertySource<Integer>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
-                new MapPropertySource<Integer>(Impulse.CONFIG_FILE_SOURCE, IMPULSE_PROPERTY_ROOT + BYTE_ARRAY_FORMATTER_LIMIT_SIZE_PROPERTY, Impulse.ConfigProperties, PropertySource.PRIORITY_2, PropertySource.NULL_INVALID));
+                new MapPropertySource<Integer>(Impulse.CONFIG_FILE_SOURCE, IMPULSE_PROPERTY_ROOT + BYTE_ARRAY_FORMATTER_LIMIT_SIZE_PROPERTY, Impulse.ConfigProperties, PropertySource.PRIORITY_2, PropertySource.NULL_INVALID, ValueOfConverter.getConverter(Integer.class)));
         intProp.addListener(new PropertyChangeListener<Integer>() {
             @Override
             public void propertyChanged(PropertyChangeEvent<Integer> event) {
