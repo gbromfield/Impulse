@@ -5,9 +5,9 @@ package com.grb.impulse.parsers.tl1;
  */
 public class TL1OKAckMessage extends TL1AckMessage {
 
-    final static public byte[] preamble = "OK ".getBytes();
+    final static public byte[] PREAMBLE = "OK ".getBytes();
 
-    public TL1OKAckMessage() {
-        super(preamble);
+    public TL1OKAckMessage() throws TL1MessageMaxSizeExceededException {
+        super();
     }
 }
