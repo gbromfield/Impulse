@@ -12,18 +12,6 @@ abstract public class TL1Decoder {
 
     abstract public TL1Message decodeTL1Message(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException;
 
-    protected boolean arrayContains(byte[] source, byte[] comparison, int offset, int length) {
-        if ((source.length >= length) && (comparison.length >= length)) {
-            for(int i = 0; i < length; i++) {
-                if (source[offset+i] != comparison[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
     public class Results {
         public int total;
         public int passed;

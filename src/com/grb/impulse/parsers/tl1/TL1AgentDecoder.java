@@ -42,52 +42,52 @@ public class TL1AgentDecoder extends TL1Decoder {
                     throw new TL1MessageMaxSizeExceededException(String.format("Error: maximum %d character size of output message reached", TL1OutputMessage.MAX_SIZE));
                 }
                 if ((!_state.equals(ParseState.OUTPUT_MESSAGE)) && (idx >= TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
-                    if (arrayContains(backingArray, TL1IPAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
+                    if (TL1Utilities.arrayContains(backingArray, TL1IPAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
                         _message = new TL1IPAckMessage();
                         _startIdx = idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE;
                         _state = ParseState.POSSIBLE_ACK;
-                    } else if (arrayContains(backingArray, TL1NAAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
+                    } else if (TL1Utilities.arrayContains(backingArray, TL1NAAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
                         _message = new TL1NAAckMessage();
                         _startIdx = idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE;
                         _state = ParseState.POSSIBLE_ACK;
-                    } else if (arrayContains(backingArray, TL1NGAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
+                    } else if (TL1Utilities.arrayContains(backingArray, TL1NGAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
                         _message = new TL1NGAckMessage();
                         _startIdx = idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE;
                         _state = ParseState.POSSIBLE_ACK;
-                    } else if (arrayContains(backingArray, TL1OKAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
+                    } else if (TL1Utilities.arrayContains(backingArray, TL1OKAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
                         _message = new TL1OKAckMessage();
                         _startIdx = idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE;
                         _state = ParseState.POSSIBLE_ACK;
-                    } else if (arrayContains(backingArray, TL1PFAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
+                    } else if (TL1Utilities.arrayContains(backingArray, TL1PFAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
                         _message = new TL1PFAckMessage();
                         _startIdx = idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE;
                         _state = ParseState.POSSIBLE_ACK;
-                    } else if (arrayContains(backingArray, TL1RLAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
+                    } else if (TL1Utilities.arrayContains(backingArray, TL1RLAckMessage.PREAMBLE, idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE, TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE)) {
                         _message = new TL1RLAckMessage();
                         _startIdx = idx - TL1AckMessage.PREAMBLE_FINGERPRINT_SIZE;
                         _state = ParseState.POSSIBLE_ACK;
                     }
                 }
                 if (_state.equals(ParseState.POSSIBLE_ACK)) {
-                    if (arrayContains(backingArray, TL1IPAckMessage.PROLOGUE, idx - TL1IPAckMessage.PROLOGUE.length, TL1IPAckMessage.PROLOGUE.length)) {
+                    if (TL1Utilities.arrayContains(backingArray, TL1IPAckMessage.PROLOGUE, idx - TL1IPAckMessage.PROLOGUE.length, TL1IPAckMessage.PROLOGUE.length)) {
                         ((TL1AckMessage)_message).parse(backingArray, 0, _startIdx, idx);
                         return reset();
                     }
                 }
                 if ((!_state.equals(ParseState.OUTPUT_MESSAGE)) && (idx >= TL1OutputMessage.PREAMBLE.length)) {
-                    if (arrayContains(backingArray, TL1OutputMessage.PREAMBLE, idx - TL1OutputMessage.PREAMBLE.length, TL1OutputMessage.PREAMBLE.length)) {
+                    if (TL1Utilities.arrayContains(backingArray, TL1OutputMessage.PREAMBLE, idx - TL1OutputMessage.PREAMBLE.length, TL1OutputMessage.PREAMBLE.length)) {
                         _startIdx = idx - TL1OutputMessage.PREAMBLE.length;
                         _state = ParseState.OUTPUT_MESSAGE;
                     }
                 }
                 if ((_state.equals(ParseState.OUTPUT_MESSAGE)) && (idx >= TL1OutputMessage.FINGERPRINT_SIZE)) {
-                    if (arrayContains(backingArray, TL1OutputMessage.RESPONSE_CODE, idx - TL1OutputMessage.RESPONSE_CODE.length, TL1OutputMessage.RESPONSE_CODE.length)) {
+                    if (TL1Utilities.arrayContains(backingArray, TL1OutputMessage.RESPONSE_CODE, idx - TL1OutputMessage.RESPONSE_CODE.length, TL1OutputMessage.RESPONSE_CODE.length)) {
                         _message = new TL1ResponseMessage(backingArray, 0, _startIdx, idx);
                         _state = ParseState.KNOWN;
-                    } else if ((arrayContains(backingArray, TL1OutputMessage.CRITICAL_ALARM_CODE, idx - TL1OutputMessage.CRITICAL_ALARM_CODE.length, TL1OutputMessage.CRITICAL_ALARM_CODE.length)) ||
-                            (arrayContains(backingArray, TL1OutputMessage.MAJOR_ALARM_CODE, idx - TL1OutputMessage.MAJOR_ALARM_CODE.length, TL1OutputMessage.MAJOR_ALARM_CODE.length)) ||
-                            (arrayContains(backingArray, TL1OutputMessage.MINOR_ALARM_CODE, idx - TL1OutputMessage.MINOR_ALARM_CODE.length, TL1OutputMessage.MINOR_ALARM_CODE.length)) ||
-                            (arrayContains(backingArray, TL1OutputMessage.NON_ALARM_CODE, idx - TL1OutputMessage.NON_ALARM_CODE.length, TL1OutputMessage.NON_ALARM_CODE.length))) {
+                    } else if ((TL1Utilities.arrayContains(backingArray, TL1OutputMessage.CRITICAL_ALARM_CODE, idx - TL1OutputMessage.CRITICAL_ALARM_CODE.length, TL1OutputMessage.CRITICAL_ALARM_CODE.length)) ||
+                            (TL1Utilities.arrayContains(backingArray, TL1OutputMessage.MAJOR_ALARM_CODE, idx - TL1OutputMessage.MAJOR_ALARM_CODE.length, TL1OutputMessage.MAJOR_ALARM_CODE.length)) ||
+                            (TL1Utilities.arrayContains(backingArray, TL1OutputMessage.MINOR_ALARM_CODE, idx - TL1OutputMessage.MINOR_ALARM_CODE.length, TL1OutputMessage.MINOR_ALARM_CODE.length)) ||
+                            (TL1Utilities.arrayContains(backingArray, TL1OutputMessage.NON_ALARM_CODE, idx - TL1OutputMessage.NON_ALARM_CODE.length, TL1OutputMessage.NON_ALARM_CODE.length))) {
                         _message = new TL1AOMessage(backingArray, 0, _startIdx, idx);
                         _state = ParseState.KNOWN;
                     }
