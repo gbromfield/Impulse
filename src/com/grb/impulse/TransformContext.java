@@ -3,11 +3,7 @@ package com.grb.impulse;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -94,6 +90,11 @@ public class TransformContext implements DynamicMBean {
     private String _loggerClass;
     private Log _logger;
 
+    /**
+     * Javascript Extension
+     */
+    private HashMap<String, JavascriptDefinition> _javascriptMap;
+
     @SuppressWarnings("unchecked")
     public TransformContext(String name) throws PropertyVetoException, PropertyConversionException, ClassNotFoundException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         _name = name;
@@ -150,6 +151,7 @@ public class TransformContext implements DynamicMBean {
         
         _loggerClass = null;
         _logger = null;
+        _javascriptMap = null;
     }
     
     public String getName() {
@@ -213,7 +215,34 @@ public class TransformContext implements DynamicMBean {
     public TransformFactory getTransformFactory() {
         return _transformFactory;
     }
-    
+
+    public void addJavascriptDefinition(String outPortName, JavascriptDefinition jsDef) {
+        if (_javascriptMap == null) {
+            _javascriptMap = new HashMap<>();
+        }
+        JavascriptDefinition def = _javascriptMap.get(outPortName);
+        if (def != null) {
+            throw new IllegalArgumentException(String.format("A maximum of one javascript entry is allowed on output ports (%s)", outPortName));
+        }
+        _javascriptMap.put(outPortName, jsDef);
+    }
+
+    public JavascriptDefinition getJavascriptDefinition(String outPortName) {
+        if (_javascriptMap != null) {
+            return _javascriptMap.get(outPortName);
+        }
+        return null;
+    }
+
+    public JavascriptDefinition[] getJavascriptDefinitions() {
+        if (_javascriptMap != null) {
+            JavascriptDefinition[] defs = new JavascriptDefinition[_javascriptMap.size()];
+            defs = _javascriptMap.values().toArray(defs);
+            return defs;
+        }
+        return null;
+    }
+
     @SuppressWarnings("unchecked")
     public void initProperties() throws PropertyVetoException, PropertyConversionException {
         try {

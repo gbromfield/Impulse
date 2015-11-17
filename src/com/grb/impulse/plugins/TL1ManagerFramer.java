@@ -12,16 +12,16 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
- * Created by gbromfie on 11/5/15.
+ * Created by gbromfie on 11/9/15.
  */
-public class TL1Framer extends BaseTransform {
+public class TL1ManagerFramer extends BaseTransform {
     /**
      * This variable is a place holder for a transform argument.
      * Argument syntax must follow <transform simple class name>.<type simple class name>.<field name>
      * This transforms outputs data into the argMap using this as a key.
      */
     @Argument
-    final public static Object[] bytesTL1Message = {"TL1Framer.ByteBuffer.bytesTL1Message", ByteBuffer.class};
+    final public static Object[] bytesTL1Message = {"TL1ManagerFramer.ByteBuffer.bytesTL1Message", ByteBuffer.class};
 
     /**
      * This variable is a place holder for a transform argument.
@@ -29,7 +29,7 @@ public class TL1Framer extends BaseTransform {
      * This transforms outputs data into the argMap using this as a key.
      */
     @Argument
-    final public static Object[] stringTL1Message = {"TL1Framer.String.stringTL1Message", String.class};
+    final public static Object[] stringTL1Message = {"TL1ManagerFramer.String.stringTL1Message", String.class};
 
     /**
      * This variable is a place holder for a transform argument.
@@ -37,7 +37,7 @@ public class TL1Framer extends BaseTransform {
      * This transforms outputs data into the argMap using this as a key.
      */
     @Argument
-    final public static Object[] tl1Message = {"TL1Framer.TL1Message.tl1Message", TL1Message.class};
+    final public static Object[] tl1Message = {"TL1ManagerFramer.TL1Message.tl1Message", TL1Message.class};
 
     /**
      * Maximum TL1 input message message.
@@ -49,22 +49,12 @@ public class TL1Framer extends BaseTransform {
      */
     public static final int MAX_INPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY_DEFAULT = TL1InputMessage.MAX_SIZE;
 
-    /**
-     * Maximum TL1 input message message.
-     */
-    public static final String MAX_OUTPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY = "maxOutputMessageSizeInChars";
+    TL1ManagerDecoder _decoder;
 
-    /**
-     * Default maximum TL1 input message message.
-     */
-    public static final int MAX_OUTPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY_DEFAULT = TL1OutputMessage.MAX_SIZE;
-
-    TL1Decoder _decoder;
-
-    public TL1Framer(String transformName, String instanceName,
-                      TransformCreationContext transformCreationContext, Object... args) {
+    public TL1ManagerFramer(String transformName, String instanceName,
+                     TransformCreationContext transformCreationContext, Object... args) {
         super(transformName, instanceName, transformCreationContext);
-        _decoder = new TL1Decoder();
+        _decoder = new TL1ManagerDecoder();
     }
 
     /**
@@ -127,14 +117,6 @@ public class TL1Framer extends BaseTransform {
                 new MapPropertySource<Integer>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(MAX_INPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID, ValueOfConverter.getConverter(Integer.class)));
         ((Property<Integer>)p).addVetoableListener(OneToMax);
         p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Maximum input message size in characters");
-        props.put(p.getId(), p);
-
-        p = new Property<Integer>(MAX_OUTPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY, MAX_OUTPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY_DEFAULT, true,
-                new PropertySource<Integer>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
-                new SystemPropertySource<Integer>(ctx.getPropertyString(MAX_OUTPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID, ValueOfConverter.getConverter(Integer.class)),
-                new MapPropertySource<Integer>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(MAX_OUTPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID, ValueOfConverter.getConverter(Integer.class)));
-        ((Property<Integer>)p).addVetoableListener(OneToMax);
-        p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Maximum output message size in characters");
         props.put(p.getId(), p);
     }
 }

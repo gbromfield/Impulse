@@ -7,9 +7,8 @@ import java.nio.ByteBuffer;
  */
 public class TL1ResponseMessage extends TL1OutputMessage {
 
-    public TL1ResponseMessage(byte[] preamble, int offset, int length) throws TL1MessageMaxSizeExceededException {
-        super();
-        parse(preamble, offset, length);
+    public TL1ResponseMessage(byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException {
+        super(preamble, offset, messageStartIdx, length);
     }
 
     @Override
