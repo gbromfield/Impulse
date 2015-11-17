@@ -2,6 +2,8 @@ package com.grb.impulse;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import java.io.File;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,11 +19,13 @@ public class TransformCreationContext {
      */
     private ScriptEngineManager _scriptEngineManager;
     private ScriptEngine _scriptEngine;
+    private HashSet<File> _jsFileSet;
 
     public TransformCreationContext() {
         _transformMap = new TreeMap<String, Transform>();
         _scriptEngineManager = null;
         _scriptEngine = null;
+        _jsFileSet = null;
     }
         
     public Transform getInstance(TransformContext transformCtx, Object... args) throws Exception {
@@ -30,10 +34,14 @@ public class TransformCreationContext {
             if (_scriptEngineManager == null) {
                 _scriptEngineManager = new ScriptEngineManager();
                 _scriptEngine = _scriptEngineManager.getEngineByName("JavaScript");
+                _jsFileSet = new HashSet<File>();
             }
             for(int i = 0; i < jsCtxs.length; i++) {
                 JavascriptDefinition ctx = jsCtxs[i];
-                _scriptEngine.eval(new java.io.FileReader(ctx.file));
+                if (!_jsFileSet.contains(ctx.file)) {
+                    _scriptEngine.eval(new java.io.FileReader(ctx.file));
+                    _jsFileSet.add(ctx.file);
+                }
             }
         }
         Transform transform = _transformMap.get(transformCtx.getName());
