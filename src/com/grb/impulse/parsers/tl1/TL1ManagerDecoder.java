@@ -1,6 +1,7 @@
 package com.grb.impulse.parsers.tl1;
 
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 
 /**
  * Created by gbromfie on 11/9/15.
@@ -10,7 +11,7 @@ public class TL1ManagerDecoder extends TL1Decoder {
     public TL1ManagerDecoder() {
     }
 
-    public TL1Message decodeTL1Message(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException {
+    public TL1Message decodeTL1Message(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException, ParseException {
         if (_message == null) {
             _message = new TL1InputMessage();
         }

@@ -1,6 +1,7 @@
 package com.grb.impulse.parsers.tl1;
 
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 
 abstract public class TL1Decoder {
 
@@ -10,7 +11,7 @@ abstract public class TL1Decoder {
         _message = null;
     }
 
-    abstract public TL1Message decodeTL1Message(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException;
+    abstract public TL1Message decodeTL1Message(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException, ParseException;
 
     public class Results {
         public int total;

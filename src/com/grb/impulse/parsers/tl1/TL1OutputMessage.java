@@ -1,5 +1,10 @@
 package com.grb.impulse.parsers.tl1;
 
+import com.grb.impulse.parsers.tl1.parser.CharacterList;
+import com.grb.impulse.parsers.tl1.parser.TextParser;
+
+import java.text.ParseException;
+
 /**
  * Created by gbromfie on 11/4/15.
  */
@@ -22,6 +27,36 @@ abstract public class TL1OutputMessage extends TL1Message {
 
     public static int DEFAULT_INITIAL_BUFFER_SIZE = 1024;
 
+    protected static final TextParser sidParser = new TextParser()
+            .setAllowedChars(CharacterList.ALPHABETIC_MINUS_WHITESPACE_CHARS)
+            .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
+            .includeDelimiter(false)
+            .setLengths(1, Integer.MAX_VALUE);
+
+    protected static final TextParser quotedsidParser = new TextParser()
+            .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
+            .setDelimiterStrings("\"", "\"")
+            .includeDelimiter(false)
+            .setLengths(1, Integer.MAX_VALUE);
+
+    protected static final TextParser dateParser = new TextParser()
+            .setAllowedChars(CharacterList.NUMBER_CHARS)
+            .addAllowedChar('-')
+            .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
+            .includeDelimiter(false)
+            .setLengths(8, 8);
+
+    protected static final TextParser timeParser = new TextParser()
+            .setAllowedChars(CharacterList.NUMBER_CHARS)
+            .addAllowedChar(':')
+            .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
+            .includeDelimiter(false)
+            .setLengths(8, 8);
+
+    protected static final TextParser responseCodeParser = new TextParser()
+            .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
+            .setLengths(1, Integer.MAX_VALUE);
+
     protected int _messageStartIdx;
 
     protected TL1OutputMessage(int bufferSize) throws TL1MessageMaxSizeExceededException {
@@ -40,7 +75,7 @@ abstract public class TL1OutputMessage extends TL1Message {
         }
     }
 
-    protected boolean parse(byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException {
+    protected boolean parse(byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException, ParseException {
         _messageStartIdx = messageStartIdx;
         return parse(preamble, offset, length);
     }
