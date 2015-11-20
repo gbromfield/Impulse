@@ -25,13 +25,33 @@ public class TextParser {
         _maxLength = Integer.MAX_VALUE;
     }
 
+    public TextParser(TextParser copy) {
+        _beginDelimiter = copy._beginDelimiter;
+        _endDelimiter = copy._endDelimiter;
+        _includeDelimiter = copy._includeDelimiter;
+        _allowedChars = new CharacterList(copy._allowedChars);
+        _delimiterChars = new CharacterList(copy._delimiterChars);
+        _minLength = copy._minLength;
+        _maxLength = copy._maxLength;
+    }
+
     public TextParser addDelimeterChars(CharacterList delimiterChars) {
         _delimiterChars.add(delimiterChars);
         return this;
     }
 
+    public TextParser addDelimeterChar(char c) {
+        _delimiterChars.add(c);
+        return this;
+    }
+
     public TextParser removeDelimeterChars(CharacterList delimiterChars) {
         _delimiterChars.remove(delimiterChars);
+        return this;
+    }
+
+    public TextParser removeDelimeterChar(char c) {
+        _delimiterChars.remove(c);
         return this;
     }
 
@@ -60,6 +80,11 @@ public class TextParser {
         return this;
     }
 
+    public TextParser addAllowedChar(char c) {
+        _allowedChars.add(c);
+        return this;
+    }
+
     public TextParser setAllowedChars(CharacterList allowedChars) {
         _allowedChars.set(allowedChars);
         return this;
@@ -67,6 +92,11 @@ public class TextParser {
 
     public TextParser removeAllowedChars(CharacterList allowedChars) {
         _allowedChars.remove(allowedChars);
+        return this;
+    }
+
+    public TextParser removeAllowedChar(char c) {
+        _allowedChars.remove(c);
         return this;
     }
 

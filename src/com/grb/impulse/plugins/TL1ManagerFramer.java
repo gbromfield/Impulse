@@ -9,6 +9,7 @@ import com.grb.util.property.impl.SystemPropertySource;
 import com.grb.util.property.impl.ValueOfConverter;
 
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 import java.util.Map;
 
 /**
@@ -63,7 +64,7 @@ public class TL1ManagerFramer extends BaseTransform {
      * @param argMap
      */
     @Input("onData")
-    public void onData(Map<String, Object> argMap, ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException {
+    public void onData(Map<String, Object> argMap, ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException, ParseException {
         if (_logger.isDebugEnabled()) {
             _logger.debug("onData: \r\n" + Impulse.GlobalByteArrayFormatter.format(readBuffer));
         }

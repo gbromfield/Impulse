@@ -8,10 +8,10 @@ public class ParseContext {
     public int index;
 
     public ParseContext(byte[] buf) {
-        this(buf, 0);
+        this(buf, 0, buf.length);
     }
 
-    public ParseContext(byte[] buf, int off) {
+    public ParseContext(byte[] buf, int off, int length) {
         buffer = buf;
         index = off;
     }

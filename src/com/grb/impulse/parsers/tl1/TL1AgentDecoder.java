@@ -3,6 +3,7 @@ package com.grb.impulse.parsers.tl1;
 import org.omg.CORBA.UNKNOWN;
 
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 
 /**
  * Created by gbromfie on 11/9/15.
@@ -30,7 +31,7 @@ public class TL1AgentDecoder extends TL1Decoder {
         reset();
     }
 
-    public TL1Message decodeTL1Message(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException {
+    public TL1Message decodeTL1Message(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException, ParseException {
         while(readBuffer.hasRemaining()) {
             if (!_state.equals(ParseState.KNOWN)) {
                 byte b = readBuffer.get();
@@ -97,7 +98,7 @@ public class TL1AgentDecoder extends TL1Decoder {
                     if (_message.parse(readBuffer)) {
                         return reset();
                     }
-                } catch (TL1MessageMaxSizeExceededException e) {
+                } catch (Exception e) {
                     reset();
                     throw e;
                 }

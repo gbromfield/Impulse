@@ -17,7 +17,7 @@ public class TextParserTester {
                 position = Integer.parseInt(args[i][2]);
             }
             try {
-                String output = parseElem.parse(new ParseContext(input.getBytes(), 0));
+                String output = parseElem.parse(new ParseContext(input.getBytes(), 0, input.length()));
                 if (output.equals(expectedOutput)) {
                     System.out.println(String.format("%s - SUCCESS", input));
                     success++;
@@ -117,7 +117,8 @@ public class TextParserTester {
         String ipMsg = "IP C0001\r\n<";
         TextParser cmdParser = new TextParser()
                 .setAllowedChars(CharacterList.ALPHABETIC_MINUS_WHITESPACE_CHARS)
-                .includeDelimiter(false);
+                .includeDelimiter(false)
+                .setLengths(2, 2);
 
         TextParser wsParser = new TextParser()
                 .setAllowedChars(CharacterList.SPACE_TAB_CHARS)
@@ -127,7 +128,8 @@ public class TextParserTester {
         TextParser ctagParser = new TextParser()
                 .setAllowedChars(CharacterList.ALPHABETIC_MINUS_WHITESPACE_CHARS)
                 .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
-                .includeDelimiter(false);
+                .includeDelimiter(false)
+                .setLengths(1, Integer.MAX_VALUE);
 
         ParseContext pc = new ParseContext(ipMsg.getBytes());
 
@@ -147,27 +149,32 @@ public class TextParserTester {
         TextParser tidParser = new TextParser()
                 .setAllowedChars(CharacterList.ALPHABETIC_MINUS_WHITESPACE_CHARS)
                 .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
-                .includeDelimiter(false);
+                .includeDelimiter(false)
+                .setLengths(1, Integer.MAX_VALUE);
 
         TextParser qtidParser = new TextParser()
                 .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
                 .setDelimiterStrings("\"", "\"")
-                .includeDelimiter(false);
+                .includeDelimiter(false)
+                .setLengths(1, Integer.MAX_VALUE);
 
         TextParser dateParser = new TextParser()
                 .setAllowedChars(CharacterList.NUMBER_CHARS)
+                .addAllowedChar('-')
                 .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
-                .includeDelimiter(false);
-        dateParser.getAllowedChars().add('-');
+                .includeDelimiter(false)
+                .setLengths(8, 8);
 
         TextParser timeParser = new TextParser()
                 .setAllowedChars(CharacterList.NUMBER_CHARS)
+                .addAllowedChar(':')
                 .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
-                .includeDelimiter(false);
-        timeParser.getAllowedChars().add(':');
+                .includeDelimiter(false)
+                .setLengths(8, 8);
 
         TextParser codeParser = new TextParser()
-                .setAllowedChars(CharacterList.ALPHABETIC_CHARS);
+                .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
+                .setLengths(1, Integer.MAX_VALUE);
 
         TextParser compldParser = new TextParser()
                 .setAllowedChars(CharacterList.ALPHABETIC_MINUS_WHITESPACE_CHARS)
@@ -179,6 +186,7 @@ public class TextParserTester {
         try {
             System.out.println("Preamble = " + preParser.parse(tidpc));
             System.out.println("TID = " + tidParser.parse(tidpc));
+//            System.out.println("TID = " + qtidParser.parse(tidpc));
             System.out.println("WS = " + preParser.parse(tidpc));
             System.out.println("DATE = " + dateParser.parse(tidpc));
             System.out.println("WS = " + preParser.parse(tidpc));
@@ -189,9 +197,101 @@ public class TextParserTester {
             System.out.println("CTAG = " + ctagParser.parse(tidpc));
             System.out.println("WS = " + preParser.parse(tidpc));
             System.out.println("COMPLD = " + compldParser.parse(tidpc));
+            System.out.println("WS = " + preParser.parse(tidpc));
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
+        String autoMsg = "\r\n\n   BOCAFLMA015 93-06-02 12:00:00\r\nA  789 REPT PM T1\r\n   \"AID-T1-1:CVL,50\"\r\n;";
+        tidpc = new ParseContext(autoMsg.getBytes());
+
+        try {
+            System.out.println("Preamble = " + preParser.parse(tidpc));
+            System.out.println("TID = " + tidParser.parse(tidpc));
+//            System.out.println("TID = " + qtidParser.parse(tidpc));
+            System.out.println("WS = " + preParser.parse(tidpc));
+            System.out.println("DATE = " + dateParser.parse(tidpc));
+            System.out.println("WS = " + preParser.parse(tidpc));
+            System.out.println("TIME = " + timeParser.parse(tidpc));
+            System.out.println("WS = " + preParser.parse(tidpc));
+            System.out.println("CODE = " + codeParser.parse(tidpc, 2));
+            System.out.println("WS = " + preParser.parse(tidpc));
+            System.out.println("ATAG = " + ctagParser.parse(tidpc));
+            System.out.println("WS = " + preParser.parse(tidpc));
+            System.out.println("VERB = " + compldParser.parse(tidpc));
+            System.out.println("WS = " + preParser.parse(tidpc));
+            System.out.println("MOD1 = " + compldParser.parse(tidpc));
+            System.out.println("WS = " + preParser.parse(tidpc));
+            System.out.println("MOD2 = " + compldParser.parse(tidpc));
+            System.out.println("WS = " + preParser.parse(tidpc));
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        String inMsg = "BLUB-USER:GAGATID:USER:CTAG::PASSWORD;";
+        tidpc = new ParseContext(inMsg.getBytes());
+
+        TextParser verbParser = new TextParser()
+                .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
+                .setDelimiterChars(CharacterList.NO_CHARS)
+                .addDelimeterChar('-')
+                .addDelimeterChar(':')
+                .setLengths(1, Integer.MAX_VALUE)
+                .includeDelimiter(false);
+
+        TextParser cmdCodeDelParser = new TextParser()
+                .setAllowedChars(CharacterList.NO_CHARS)
+                .addAllowedChar('-')
+                .addDelimeterChars(CharacterList.ALPHABETIC_CHARS)
+                .removeDelimeterChar('-')
+                .includeDelimiter(false);
+
+        TextParser modParser = new TextParser()
+                .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
+                .setDelimiterChars(CharacterList.NO_CHARS)
+                .addDelimeterChar('-')
+                .addDelimeterChar(':')
+                .includeDelimiter(false);
+
+        TextParser colonDelParser = new TextParser()
+                .setAllowedChars(CharacterList.WHITESPACE_CHARS)
+                .addAllowedChar(':')
+                .addDelimeterChars(CharacterList.ALPHABETIC_MINUS_WHITESPACE_CHARS)
+                .removeDelimeterChar(':')
+                .includeDelimiter(false);
+
+        TextParser tid2Parser = new TextParser()
+                .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
+                .removeAllowedChar(':')
+                .setDelimiterChars(CharacterList.NO_CHARS)
+                .addDelimeterChar(':')
+                .includeDelimiter(false);
+
+        TextParser aidParser = new TextParser()
+                .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
+                .removeAllowedChar(':')
+                .setDelimiterChars(CharacterList.NO_CHARS)
+                .addDelimeterChar(':')
+                .includeDelimiter(false);
+
+        try {
+            System.out.println("VERB = " + verbParser.parse(tidpc));
+            System.out.println("DASH = " + cmdCodeDelParser.parse(tidpc));
+            System.out.println("MOD1 = " + modParser.parse(tidpc));
+            System.out.println("DASH = " + cmdCodeDelParser.parse(tidpc));
+//            System.out.println("TID = " + qtidParser.parse(tidpc));
+            System.out.println("MOD2 = " + modParser.parse(tidpc));
+            System.out.println("COLON = " + colonDelParser.parse(tidpc));
+            System.out.println("TID = " + tid2Parser.parse(tidpc));
+            System.out.println("COLON = " + colonDelParser.parse(tidpc));
+            System.out.println("AID = " + aidParser.parse(tidpc));
+            System.out.println("COLON = " + colonDelParser.parse(tidpc));
+            System.out.println("CTAG = " + aidParser.parse(tidpc));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }
