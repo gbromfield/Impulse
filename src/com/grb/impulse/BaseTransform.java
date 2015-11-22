@@ -228,61 +228,10 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 	 * @param args String/Object pairs for the argument map that are parameters for the next transform.
 	 */
     public void next(String outputPortName, Map<String, Object> argMap, Object... args) {
-        ConnectionContext inConnCtx = new ConnectionContext();
-        ConnectionContext outConnCtx = inConnCtx;
-        inConnCtx.log = _logger;
-        inConnCtx.outputPortName = outputPortName;
-        inConnCtx.argMap = argMap;
-        inConnCtx.args = args;
-        inConnCtx.connectionNames = null;
         ArrayList<Connection> connections = _connections.get(outputPortName);
-        if ((connections != null) && (connections.size() > 0)) {
-            inConnCtx.connectionNames = new String[connections.size()];
-            for(int i = 0; i < connections.size(); i++) {
-                Connection c = connections.get(i);
-                inConnCtx.connectionNames[i] = c.getName();
-            }
-        }
-
-        JavascriptDefinition jsDef = getTransformContext().getJavascriptDefinition(outputPortName);
-        if (jsDef != null) {
-            ScriptEngine engine = _transformCreationContext.getJavascriptEngine();
-            Invocable inv = (Invocable) engine;
-            try {
-                if ((_logger != null) && (_logger.isDebugEnabled())) {
-                    _logger.debug(String.format("About to execute javascript file %s, function %s", jsDef.file.getName(), jsDef.function));
-                }
-                Object tmpObj = inv.invokeFunction(jsDef.function, inConnCtx);
-                if (!(tmpObj instanceof ConnectionContext)) {
-                    if ((_logger != null) && (_logger.isErrorEnabled())) {
-                        _logger.error(String.format("Exception executing javascript file %s, function %s, expecting a String[] return value got %s",
-                                jsDef.file.getName(), jsDef.function, tmpObj.getClass().getName()));
-                    }
-                } else {
-                    outConnCtx = (ConnectionContext)tmpObj;
-                }
-                if ((_logger != null) && (_logger.isDebugEnabled())) {
-                    _logger.debug(String.format("Executed javascript file %s, function %s, returned %s",
-                            jsDef.file.getName(), jsDef.function, outConnCtx));
-                }
-            } catch (Exception e) {
-                if ((_logger != null) && (_logger.isErrorEnabled())) {
-                    _logger.error(String.format("Exception executing javascript file %s, function %s",
-                            jsDef.file.getName(), jsDef.function), e);
-                }
-            }
-        }
-
-        if ((outConnCtx.connectionNames != null) && (outConnCtx.connectionNames.length > 0)) {
-			for(int i = 0; i < connections.size(); i++) {
-				Connection c = connections.get(i);
-                for(int j = 0; j < outConnCtx.connectionNames.length; j++) {
-                    if (c.getName().equals(outConnCtx.connectionNames[j])) {
-                        next(c, argMap, args);
-                        break;
-                    }
-                }
-            }
+        for(int i = 0; i < connections.size(); i++) {
+            Connection c = connections.get(i);
+            next(c, argMap, args);
         }
     }
 
@@ -299,6 +248,39 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
         	if (ConnectionLogger.isDebugEnabled()) {
         		ConnectionLogger.debug("About to follow connection " + connection);
         	}
+
+            // Javascript extension
+            JavascriptDefinition jsDef = connection.getConnectionDefinition().getJavascriptDefinition();
+            if (jsDef != null) {
+                ScriptEngine engine = _transformCreationContext.getJavascriptEngine();
+                Invocable inv = (Invocable) engine;
+                try {
+                    if ((_logger != null) && (_logger.isDebugEnabled())) {
+                        _logger.debug(String.format("About to execute javascript file %s, function %s", jsDef.file.getName(), jsDef.function));
+                    }
+                    Object retObj = inv.invokeFunction(jsDef.function, _logger, connection, argMap, args);
+                    if ((_logger != null) && (_logger.isDebugEnabled())) {
+                        _logger.debug(String.format("Executed javascript file %s, function %s, returned %s",
+                                jsDef.file.getName(), jsDef.function, retObj));
+                    }
+                    if (retObj instanceof Boolean) {
+                        Boolean cont = (Boolean)retObj;
+                        if (!cont) {
+                            if ((_logger != null) && (_logger.isDebugEnabled())) {
+                                _logger.debug(String.format("javascript file %s, function %s, return FALSE so skipping connection",
+                                        jsDef.file.getName(), jsDef.function));
+                            }
+                            return;
+                        }
+                    }
+                } catch (Exception e) {
+                    if ((_logger != null) && (_logger.isErrorEnabled())) {
+                        _logger.error(String.format("Exception executing javascript file %s, function %s",
+                                jsDef.file.getName(), jsDef.function), e);
+                    }
+                }
+            }
+
         	// is it dynamic?
         	inputTransform = connection.getInputTransform();
         	if ((inputTransform == null) && (!connection.getConnectionDefinition().getInputPortDefinition().isStatic())) {

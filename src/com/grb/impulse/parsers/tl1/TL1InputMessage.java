@@ -64,6 +64,30 @@ public class TL1InputMessage extends TL1Message {
         super(INITIAL_BUFFER_SIZE);
     }
 
+    public String getCmdCode() {
+        return _cmdCode;
+    }
+
+    public String getVerb() {
+        return _verb;
+    }
+
+    public String getMod1() {
+        return _mod1;
+    }
+
+    public String getMod2() {
+        return _mod2;
+    }
+
+    public String getTid() { return _tid; }
+
+    public String getAid() { return _aid; }
+
+    public String getCTAG() {
+        return _ctag;
+    }
+
     public boolean parse(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException, ParseException {
         while (readBuffer.hasRemaining()) {
             byte b = readBuffer.get();

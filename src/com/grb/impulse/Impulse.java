@@ -426,8 +426,9 @@ public class Impulse implements DynamicMBean {
                             }
 
                             String[] paramList = value.split(";");
+                            // parse javascript
+                            JavascriptDefinition jsCtx = null;
                             for(int j = 0; j < paramList.length; j++) {
-                                // parse javascript
                                 String[] jsArgs = paramList[j].split(":");
                                 if (jsArgs[0].trim().toLowerCase().equalsIgnoreCase("javascript")) {
                                     String jsFilename = null;
@@ -442,10 +443,9 @@ public class Impulse implements DynamicMBean {
                                     if (!jsFile.exists()) {
                                         throw new IllegalArgumentException(String.format("Input Port Definition %s references a javascript file that doesn't exist - %s", paramList[j], jsFilename));
                                     }
-                                    JavascriptDefinition jsCtx = new JavascriptDefinition();
+                                    jsCtx = new JavascriptDefinition();
                                     jsCtx.file = jsFile;
                                     jsCtx.function = jsFunction;
-                                    outTransformCtx.addJavascriptDefinition(outPortName, jsCtx);
                                 } else {
                                     // parse the arguments
                                     int startBracket = paramList[j].indexOf('(');
@@ -487,8 +487,9 @@ public class Impulse implements DynamicMBean {
                                         }
                                         validateArguments(inputArgs, inPortDef);
                                         ConnectionDefinition connectionDef = new ConnectionDefinition(
-                                                outTransformName, outTransformDef, outPortDef,
+                                                outTransformName, outTransformDef, outPortDef, jsCtx,
                                                 inTransformName, inTransformDef, inPortDef, inputArgs);
+                                        jsCtx = null;   // reset for next connection
                                         Log outLogger = LogFactory.getLog(outTransformDef.getTransformClass());
                                         Log inLogger = LogFactory.getLog(inTransformDef.getTransformClass());
                                         if (outLogger.isInfoEnabled()) {

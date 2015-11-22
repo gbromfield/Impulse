@@ -4,16 +4,20 @@ public class ConnectionDefinition {
     private String _outputTransformName;
     private TransformDefinition _outputTransformDef;
     private PortDefinition _outputPortDef;
+    private JavascriptDefinition _javascript;
     private String _inputTransformName;
     private TransformDefinition _inputTransformDef;
     private PortDefinition _inputPortDef;
     private String[] _inputArguments;
     
-    public ConnectionDefinition(String outputTransformName, TransformDefinition outputTransformDef, PortDefinition outputPortDef,
-            String inputTransformName, TransformDefinition inputTransformDef, PortDefinition inputPortDef, String[] inputArguments) {
+    public ConnectionDefinition(String outputTransformName, TransformDefinition outputTransformDef,
+                                PortDefinition outputPortDef, JavascriptDefinition javascript,
+                                String inputTransformName, TransformDefinition inputTransformDef,
+                                PortDefinition inputPortDef, String[] inputArguments) {
         _outputTransformName = outputTransformName;
         _outputTransformDef = outputTransformDef;
         _outputPortDef = outputPortDef;
+        _javascript = javascript;
         _inputTransformName = inputTransformName;
         _inputTransformDef = inputTransformDef;
         _inputPortDef = inputPortDef;
@@ -31,6 +35,10 @@ public class ConnectionDefinition {
     public PortDefinition getOutputPortDefinition() {
         return _outputPortDef;
     }
+
+    public JavascriptDefinition getJavascriptDefinition() { return _javascript; }
+
+    public boolean usesJavascript() { return(_javascript != null); }
 
     public TransformDefinition getInputTransformDefinition() {
         return _inputTransformDef;

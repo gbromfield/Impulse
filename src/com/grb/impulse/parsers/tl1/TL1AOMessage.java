@@ -42,6 +42,28 @@ public class TL1AOMessage extends TL1OutputMessage {
         _atag = null;
     }
 
+    public String getTid() { return _tid; }
+
+    public String getAlmCode() {
+        return _alarmCode;
+    }
+
+    public String getATAG() {
+        return _atag;
+    }
+
+    public String getVerb() {
+        return _verb;
+    }
+
+    public String getMod1() {
+        return _mod1;
+    }
+
+    public String getMod2() {
+        return _mod2;
+    }
+
     @Override
     public boolean parse(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException {
         while(readBuffer.hasRemaining()) {
