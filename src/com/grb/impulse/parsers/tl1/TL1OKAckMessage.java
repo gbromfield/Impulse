@@ -10,4 +10,8 @@ public class TL1OKAckMessage extends TL1AckMessage {
     public TL1OKAckMessage() throws TL1MessageMaxSizeExceededException {
         super();
     }
+
+    public TL1OKAckMessage(String ctag) throws TL1MessageMaxSizeExceededException {
+        super("OK", ctag);
+    }
 }

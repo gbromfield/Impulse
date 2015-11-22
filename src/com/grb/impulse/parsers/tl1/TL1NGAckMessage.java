@@ -10,4 +10,8 @@ public class TL1NGAckMessage extends TL1AckMessage {
     public TL1NGAckMessage() throws TL1MessageMaxSizeExceededException {
         super();
     }
+
+    public TL1NGAckMessage(String ctag) throws TL1MessageMaxSizeExceededException {
+        super("NG", ctag);
+    }
 }
