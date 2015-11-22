@@ -10,4 +10,8 @@ public class TL1IPAckMessage extends TL1AckMessage {
     public TL1IPAckMessage() throws TL1MessageMaxSizeExceededException {
         super();
     }
+
+    public TL1IPAckMessage(String ctag) throws TL1MessageMaxSizeExceededException {
+        super("IP", ctag);
+    }
 }

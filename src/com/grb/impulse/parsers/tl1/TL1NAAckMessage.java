@@ -10,4 +10,8 @@ public class TL1NAAckMessage extends TL1AckMessage {
     public TL1NAAckMessage() throws TL1MessageMaxSizeExceededException {
         super();
     }
+
+    public TL1NAAckMessage(String ctag) throws TL1MessageMaxSizeExceededException {
+        super("NA", ctag);
+    }
 }

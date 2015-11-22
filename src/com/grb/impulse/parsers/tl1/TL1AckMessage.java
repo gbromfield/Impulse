@@ -20,7 +20,14 @@ abstract public class TL1AckMessage extends TL1OutputMessage {
             .includeDelimiter(false)
             .setLengths(2, 2);
 
-    private String _ctag;
+    protected String _ctag;
+
+    protected TL1AckMessage(String ackCode, String ctag) throws TL1MessageMaxSizeExceededException {
+        super(INITIAL_BUFFER_SIZE);
+        _ctag = ctag;
+        String ackMsg = ackCode + " " + ctag + "\r\n<";
+        _buffer.writeBytes(ackMsg.getBytes());
+    }
 
     protected TL1AckMessage() throws TL1MessageMaxSizeExceededException {
         super(INITIAL_BUFFER_SIZE);

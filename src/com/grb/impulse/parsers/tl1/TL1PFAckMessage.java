@@ -10,4 +10,8 @@ public class TL1PFAckMessage extends TL1AckMessage {
     public TL1PFAckMessage() throws TL1MessageMaxSizeExceededException {
         super();
     }
+
+    public TL1PFAckMessage(String ctag) throws TL1MessageMaxSizeExceededException {
+        super("PF", ctag);
+    }
 }
