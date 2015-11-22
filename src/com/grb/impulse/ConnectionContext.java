@@ -14,9 +14,9 @@ public class ConnectionContext {
     public Log log;
 
     /**
-     * Transform Output Port Name
+     * Connection
      */
-    public String outputPortName;
+    public Connection connection;
 
     /**
      * Input arguments to the Transform
@@ -28,16 +28,10 @@ public class ConnectionContext {
      */
     public Object[] args;
 
-    /**
-     * List of connection names associated with
-     * the Transform's output
-     */
-    public String[] connectionNames;
-
     public String toString() {
         StringBuilder bldr = new StringBuilder();
-        bldr.append("outputPortName=");
-        bldr.append(outputPortName);
+        bldr.append("connection=");
+        bldr.append(connection);
         bldr.append(", argMap={");
         bldr.append(argMap);
         bldr.append("}, args={");
@@ -51,18 +45,6 @@ public class ConnectionContext {
                 bldr.append(args[i]);
             }
         }
-        bldr.append("}, connectionNames={");
-        if (args == null) {
-            bldr.append("null");
-        } else {
-            for(int i = 0; i < connectionNames.length; i++) {
-                if (i > 0) {
-                    bldr.append(", ");
-                }
-                bldr.append(connectionNames[i]);
-            }
-        }
-        bldr.append("}");
         return bldr.toString();
     }
 }

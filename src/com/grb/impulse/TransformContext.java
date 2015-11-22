@@ -93,7 +93,7 @@ public class TransformContext implements DynamicMBean {
     /**
      * Javascript Extension
      */
-    private HashMap<String, JavascriptDefinition> _javascriptMap;
+    private HashMap<String, JavascriptDefinition> _javascriptDefs;
 
     @SuppressWarnings("unchecked")
     public TransformContext(String name) throws PropertyVetoException, PropertyConversionException, ClassNotFoundException, IllegalArgumentException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -151,7 +151,7 @@ public class TransformContext implements DynamicMBean {
         
         _loggerClass = null;
         _logger = null;
-        _javascriptMap = null;
+        _javascriptDefs = null;
     }
     
     public String getName() {
@@ -202,6 +202,13 @@ public class TransformContext implements DynamicMBean {
         }
         _connectionDefs.add(connectionDef);
         _connectionsStringArray.add(connectionDef.toSimpleString());
+        JavascriptDefinition jsDef = connectionDef.getJavascriptDefinition();
+        if (jsDef != null) {
+            if (_javascriptDefs == null) {
+                _javascriptDefs = new HashMap<String, JavascriptDefinition>();
+            }
+            _javascriptDefs.put(jsDef.file.getAbsolutePath(), jsDef);
+        }
     }
     
     public List<ConnectionDefinition> getConnectionDefinitions() {
@@ -216,28 +223,10 @@ public class TransformContext implements DynamicMBean {
         return _transformFactory;
     }
 
-    public void addJavascriptDefinition(String outPortName, JavascriptDefinition jsDef) {
-        if (_javascriptMap == null) {
-            _javascriptMap = new HashMap<>();
-        }
-        JavascriptDefinition def = _javascriptMap.get(outPortName);
-        if (def != null) {
-            throw new IllegalArgumentException(String.format("A maximum of one javascript entry is allowed on output ports (%s)", outPortName));
-        }
-        _javascriptMap.put(outPortName, jsDef);
-    }
-
-    public JavascriptDefinition getJavascriptDefinition(String outPortName) {
-        if (_javascriptMap != null) {
-            return _javascriptMap.get(outPortName);
-        }
-        return null;
-    }
-
     public JavascriptDefinition[] getJavascriptDefinitions() {
-        if (_javascriptMap != null) {
-            JavascriptDefinition[] defs = new JavascriptDefinition[_javascriptMap.size()];
-            defs = _javascriptMap.values().toArray(defs);
+        if (_javascriptDefs != null) {
+            JavascriptDefinition[] defs = new JavascriptDefinition[_javascriptDefs.size()];
+            defs = _javascriptDefs.values().toArray(defs);
             return defs;
         }
         return null;

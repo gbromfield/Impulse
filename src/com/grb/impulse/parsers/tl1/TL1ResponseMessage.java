@@ -28,6 +28,14 @@ public class TL1ResponseMessage extends TL1OutputMessage {
         _complCode = null;
     }
 
+    public String getTid() { return _tid; }
+
+    public String getCTAG() {
+        return _ctag;
+    }
+
+    public String getComplCode() { return _complCode; }
+
     @Override
     public boolean parse(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException, ParseException {
         while(readBuffer.hasRemaining()) {

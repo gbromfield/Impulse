@@ -4,13 +4,18 @@
  * @param connectionContext ConnectionContext to print.
  * @returns {*}
  */
-function printConnectionContext(connectionContext) {
-    connectionContext.log.info('connectionContext=' + connectionContext);
+function printConnectionContext(logger, connection, argMap, args) {
+    logger.info('connection=' + connection);
+    logger.info('argMap=' + argMap);
+    if (args != null) {
+        var i = 0;
+        while(i < args.length) {
+            logger.info('args[' + i + "]= " + args[i]);
+            i++;
+        }
+    }
     /**
-     * return the input connection context without modification
-     * if you want to have a script act as defined in the configuration
-     * file.
-     * To change the behavior return an appropriate connection context.
+     * Returning false cancels the following of this connection.
      */
-    return connectionContext;
+    return true;
 }
