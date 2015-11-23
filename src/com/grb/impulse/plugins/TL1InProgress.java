@@ -108,7 +108,6 @@ public class TL1InProgress extends BaseTransform {
     protected int _minDelayInMS = 0;
     protected int _maxDelayInMS = 0;
     protected int _ipIntervalInMS = 0;
-    protected String _ctag;
 
     public TL1InProgress(String transformName, String instanceName,
                           TransformCreationContext transformCreationContext, Object... args) {
@@ -122,7 +121,6 @@ public class TL1InProgress extends BaseTransform {
         parseDelay(cmdDelayInMSStr);
         String ipIntervalInMSStr = getStringProperty(IN_PROGRESS_INTERVAL_IN_MS_PROPERTY);
         _ipIntervalInMS = Integer.parseInt(ipIntervalInMSStr);
-        _ctag = null;
     }
 
     /**
@@ -135,19 +133,17 @@ public class TL1InProgress extends BaseTransform {
         if (_logger.isDebugEnabled()) {
             _logger.debug("onTL1In: \r\n" + Impulse.format(argMap));
         }
-        if ((_ctag != null) && (message instanceof TL1ResponseMessage)) {
-            if (_ctag.equals(((TL1ResponseMessage)message).getCTAG())) {
-                int count = (int)(_delayInMS / _ipIntervalInMS);
-                if (count < 1) {
-                    onTL1Out(argMap, message);
-                } else {
-                    try {
-                        TL1IPAckMessage ackMsg = new TL1IPAckMessage(_ctag);
-                        _timer.schedule(new DelayerTimerTask(this, argMap, ackMsg, (TL1ResponseMessage)message,
-                                _delayInMS, _ipIntervalInMS, count), _ipIntervalInMS);
-                    } catch (TL1MessageMaxSizeExceededException e) {
-                        // Not happening
-                    }
+        if (message instanceof TL1ResponseMessage) {
+            int count = (int)(_delayInMS / _ipIntervalInMS);
+            if (count < 1) {
+                onTL1Out(argMap, message);
+            } else {
+                try {
+                    TL1IPAckMessage ackMsg = new TL1IPAckMessage(((TL1ResponseMessage)message).getCTAG());
+                    _timer.schedule(new DelayerTimerTask(this, argMap, ackMsg, (TL1ResponseMessage)message,
+                            _delayInMS, _ipIntervalInMS, count), _ipIntervalInMS);
+                } catch (TL1MessageMaxSizeExceededException e) {
+                    // Not happening
                 }
             }
         }
@@ -167,21 +163,6 @@ public class TL1InProgress extends BaseTransform {
         buffer.put(message.getBuffer().getBackingArray(), message.getBuffer().getBackingArrayOffset(), message.getBuffer().getLength());
         buffer.flip();
         next("onTL1Out", argMap, bytesTL1Message[0], buffer, stringTL1Message[0], message.toString(), tl1Message[0], message);
-    }
-
-    /**
-     * [input] Setting of the ctag.
-     *
-     * @param argMap Data to be delayed.
-     */
-    @Input("onSetCtag")
-    public void onSetCtag(Map<String, Object> argMap, TL1Message message) {
-        if (_logger.isDebugEnabled()) {
-            _logger.debug("onSetCtag: \r\n" + Impulse.format(argMap));
-        }
-        if (message instanceof TL1InputMessage) {
-            _ctag = ((TL1InputMessage)message).getCTAG();
-        }
     }
 
     public void parseDelay(String delayValue) {
