@@ -114,11 +114,11 @@ public class TextParser {
         return parse(ctx, Integer.MAX_VALUE);
     }
 
-    public String parse(ParseContext ctx, Integer length) throws ParseException {
+    public String parse(ParseContext ctx, int length) throws ParseException {
         int offset = ctx.index;
         StringBuilder bldr = new StringBuilder();
         if (_beginDelimiter != null) {
-            if ((ctx.buffer.length - ctx.index) >= _beginDelimiter.length) {
+            if ((ctx.length - ctx.index) >= _beginDelimiter.length) {
                 for(int i = 0; i < _beginDelimiter.length; i++) {
                     if (_beginDelimiter[i] != ctx.buffer[ctx.index]) {
                         throw new ParseException("No Delimiter Found", ctx.index);
@@ -135,7 +135,7 @@ public class TextParser {
                 }
             }
         }
-        while(ctx.index < ctx.buffer.length) {
+        while(ctx.index < ctx.length) {
             if (_endDelimiter != null) {
                 boolean found = true;
                 if ((ctx.index - offset + 1) >= _endDelimiter.length) {

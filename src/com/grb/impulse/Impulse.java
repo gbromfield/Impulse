@@ -650,7 +650,7 @@ public class Impulse implements DynamicMBean {
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
     	System.out.println("Impulse Version " + Version + ", " + BuildDate);
-        final String syntax = "Syntax: Impulse [-Dkey=value ...] configFile";
+        final String syntax = "Syntax: Impulse [-Dkey=value ...] propertiesFile";
         try {
             String configFileName = null;
             if (args.length == 0) {

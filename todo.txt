@@ -50,10 +50,10 @@
 49 Make the listen port in ServerSocket a list/range. Done.
 50 Add handling of TL1 termination characters in quotes and comments.
 51 Add handling of TL1 continuation characters.
-52 Add additional parsing of TL1 starting with TID and CTAG.
-53 Add the use of javascript in the transform to do custom handling.
-54 Add a transform that drops TL1 responses from an NE.
-55 Add the ability to send a TL1 message from a file (maybe this is accomplished with javascript).
-56 Add handling of quotes in TID.
+52 Add additional parsing of TL1 starting with TID and CTAG. Done.
+53 Add the use of javascript in the transform to do custom handling. Done.
+54 Add a transform that drops TL1 responses from an NE. Done.
+55 Add the ability to send a TL1 message from a file (maybe this is accomplished with javascript). Done. Possible through Javascript.
+56 Add handling of quotes in TID. Done.
 57 Add documentation for javascript.
 58 Add the capability to set a property like delay at runtime. Might already be possible through javascript.
