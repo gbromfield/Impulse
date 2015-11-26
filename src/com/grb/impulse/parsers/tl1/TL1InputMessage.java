@@ -48,8 +48,10 @@ public class TL1InputMessage extends TL1Message {
     private static final TextParser blockParser = new TextParser()
             .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
             .removeAllowedChar(':')
+            .removeAllowedChar(';')
             .setDelimiterChars(CharacterList.NO_CHARS)
             .addDelimeterChar(':')
+            .addDelimeterChar(';')
             .includeDelimiter(false);
 
     private String _cmdCode;

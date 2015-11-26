@@ -3,14 +3,32 @@
 	<target name="read">
 		<property file="${basedir}/common.properties"/>
 		<property file="${basedir}/build.properties"/>
-		<path id="project.classpath">  
-		  <fileset dir="${local.lib.dir}">
-		    <include name="*.jar"/>                                                  
-		  </fileset>    
-		  <fileset dir="${log4j.lib.dir}">
-		    <include name="*.jar"/>                                                  
-		  </fileset>    
-	    </path>
+		<path id="project.classpath">
+            <fileset dir="${local.lib.dir}">
+                <include name="*.jar"/>
+            </fileset>
+            <fileset dir="${commons.lib.dir}">
+                <include name="*.jar"/>
+            </fileset>
+            <fileset dir="${junit.lib.dir}">
+                <include name="*.jar"/>
+			</fileset>
+            <fileset dir="${log4j.lib.dir}">
+                <include name="*.jar"/>
+            </fileset>
+			<fileset dir="${mina.lib.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${slf4j.lib.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${sshd.lib.dir}">
+				<include name="*.jar"/>
+			</fileset>
+            <fileset dir="${tomcat.lib.dir}">
+                <include name="*.jar"/>
+            </fileset>
+		</path>
 		<tstamp>
 		    <format property="build.date" pattern="d-MMMM-yyyy HH:mm" locale="en,GB"/>
 		</tstamp>
@@ -80,9 +98,27 @@
 	</target>
 
 	<target name="dist" depends="build" description="distribute jar to the lib directory">
-		<copy file="${log4j.lib.dir}/commons-logging-1.0.4.jar" todir="${basedir}/${dist.dir}"/>
-		<copy file="${log4j.lib.dir}/commons-logging-api-1.0.4.jar" todir="${basedir}/${dist.dir}"/>
-		<copy file="${log4j.lib.dir}/log4j-1.2.17.jar" todir="${basedir}/${dist.dir}"/>
+        <copy todir="${basedir}/${dist.dir}">
+            <fileset dir="${commons.lib.dir}"/>
+        </copy>
+        <copy todir="${basedir}/${dist.dir}">
+            <fileset dir="${junit.lib.dir}"/>
+        </copy>
+        <copy todir="${basedir}/${dist.dir}">
+            <fileset dir="${log4j.lib.dir}"/>
+        </copy>
+        <copy todir="${basedir}/${dist.dir}">
+            <fileset dir="${mina.lib.dir}"/>
+        </copy>
+        <copy todir="${basedir}/${dist.dir}">
+            <fileset dir="${slf4j.lib.dir}"/>
+        </copy>
+        <copy todir="${basedir}/${dist.dir}">
+            <fileset dir="${sshd.lib.dir}"/>
+        </copy>
+        <copy todir="${basedir}/${dist.dir}">
+            <fileset dir="${tomcat.lib.dir}"/>
+        </copy>
 		<copy file="${local.lib.dir}/grb-util-1.0.jar" todir="${basedir}/${dist.dir}"/>
 		<copy file="${local.lib.dir}/grb-util-listenersrv-1.0.jar" todir="${basedir}/${dist.dir}"/>
 		<copy file="${local.lib.dir}/grb-util-property-1.0.jar" todir="${basedir}/${dist.dir}"/>

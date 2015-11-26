@@ -6,13 +6,15 @@ package com.grb.impulse.parsers.tl1.parser;
 public class ParseContext {
     public byte[] buffer;
     public int index;
+    public int length;
 
     public ParseContext(byte[] buf) {
         this(buf, 0, buf.length);
     }
 
-    public ParseContext(byte[] buf, int off, int length) {
+    public ParseContext(byte[] buf, int off, int len) {
         buffer = buf;
         index = off;
+        length = len;
     }
 }
