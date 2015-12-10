@@ -229,9 +229,11 @@ public class BaseTransform implements Transform, LoggingContext, DynamicMBean {
 	 */
     public void next(String outputPortName, Map<String, Object> argMap, Object... args) {
         ArrayList<Connection> connections = _connections.get(outputPortName);
-        for(int i = 0; i < connections.size(); i++) {
-            Connection c = connections.get(i);
-            next(c, argMap, args);
+        if (connections != null) {
+            for(int i = 0; i < connections.size(); i++) {
+                Connection c = connections.get(i);
+                next(c, argMap, args);
+            }
         }
     }
 
