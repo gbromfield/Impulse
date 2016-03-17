@@ -18,17 +18,25 @@ public class TL1ResponseMessage extends TL1OutputMessage {
             .includeDelimiter(false);
 
     private String _tid;
+    private String _date;
+    private String _time;
     private String _ctag;
     private String _complCode;
 
     public TL1ResponseMessage(byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException {
         super(preamble, offset, messageStartIdx, length);
         _tid = null;
+        _date = null;
+        _time = null;
         _ctag = null;
         _complCode = null;
     }
 
     public String getTid() { return _tid; }
+
+    public String getDate() {return _date; }
+
+    public String getTime() {return _time; }
 
     public String getCTAG() {
         return _ctag;
@@ -61,9 +69,9 @@ public class TL1ResponseMessage extends TL1OutputMessage {
             _tid = sidParser.parse(pc);
         }
         manadatorySpacesParser.parse(pc);
-        dateParser.parse(pc);
+        _date = dateParser.parse(pc);
         manadatorySpacesParser.parse(pc);
-        timeParser.parse(pc);
+        _time = timeParser.parse(pc);
         manadatoryWhitespaceParser.parse(pc);
         responseCodeParser.parse(pc, 2);
         manadatorySpacesParser.parse(pc);

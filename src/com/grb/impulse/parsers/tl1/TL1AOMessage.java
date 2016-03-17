@@ -30,6 +30,8 @@ public class TL1AOMessage extends TL1OutputMessage {
             .includeDelimiter(false);
 
     private String _tid;
+    private String _date;
+    private String _time;
     private String _alarmCode;
     private String _atag;
     private String _verb;
@@ -39,10 +41,20 @@ public class TL1AOMessage extends TL1OutputMessage {
     public TL1AOMessage(byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException {
         super(preamble, offset, messageStartIdx, length);
         _tid = null;
+        _date = null;
+        _time = null;
+        _alarmCode = null;
         _atag = null;
+        _verb = null;
+        _mod1 = null;
+        _mod2 = null;
     }
 
     public String getTid() { return _tid; }
+
+    public String getDate() { return _date; }
+
+    public String getTime() { return _time; }
 
     public String getAlmCode() {
         return _alarmCode;
@@ -88,9 +100,9 @@ public class TL1AOMessage extends TL1OutputMessage {
             _tid = sidParser.parse(pc);
         }
         manadatorySpacesParser.parse(pc);
-        dateParser.parse(pc);
+        _date = dateParser.parse(pc);
         manadatorySpacesParser.parse(pc);
-        timeParser.parse(pc);
+        _time = timeParser.parse(pc);
         manadatoryWhitespaceParser.parse(pc);
         _alarmCode = responseCodeParser.parse(pc, 2);
         manadatorySpacesParser.parse(pc);
