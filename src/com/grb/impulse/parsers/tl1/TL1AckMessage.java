@@ -54,6 +54,8 @@ abstract public class TL1AckMessage extends TL1OutputMessage {
         return _ctag;
     }
 
+    abstract public String getAckCode();
+    
     private void parseTL1() throws ParseException {
         ParseContext pc = new ParseContext(_buffer.getBackingArray(), _messageStartIdx, _buffer.getLength() - _messageStartIdx);
         ackCodeParser.parse(pc, 2);

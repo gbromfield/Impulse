@@ -5,7 +5,8 @@ package com.grb.impulse.parsers.tl1;
  */
 public class TL1RLAckMessage extends TL1AckMessage {
 
-    final static public byte[] PREAMBLE = "RL ".getBytes();
+    final static public String PREAMBLE_STR = "RL";
+    final static public byte[] PREAMBLE = (PREAMBLE_STR + " ").getBytes();
 
     public TL1RLAckMessage() throws TL1MessageMaxSizeExceededException {
         super();
@@ -13,5 +14,10 @@ public class TL1RLAckMessage extends TL1AckMessage {
 
     public TL1RLAckMessage(String ctag) throws TL1MessageMaxSizeExceededException {
         super("RL", ctag);
+    }
+
+    @Override
+    public String getAckCode() {
+        return PREAMBLE_STR;
     }
 }

@@ -127,6 +127,8 @@ public class TimeDelayer extends BaseTransform {
         } else if (_minDelayInMS > 0) {
             int delay = _minDelayInMS + (int)((_maxDelayInMS - _minDelayInMS) * Math.random());
             _timer.schedule(new DelayerTimerTask(this, argMap, _usePersistentConnections), delay);
+        } else {
+            delayerOut(argMap);
         }
 	}	
 
