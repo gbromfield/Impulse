@@ -115,62 +115,64 @@ public class TextParser {
     }
 
     public String parse(ParseContext ctx, int length) throws ParseException {
-        int offset = ctx.index;
+        if (ctx.mark >= (ctx.index + ctx.length)) {
+            throw new ParseException("Buffer Underflow", ctx.mark);
+        }
         StringBuilder bldr = new StringBuilder();
         if (_beginDelimiter != null) {
-            if ((ctx.length - ctx.index) >= _beginDelimiter.length) {
+            if (ctx.length >= _beginDelimiter.length) {
                 for(int i = 0; i < _beginDelimiter.length; i++) {
-                    if (_beginDelimiter[i] != ctx.buffer[ctx.index]) {
-                        throw new ParseException("No Delimiter Found", ctx.index);
+                    if (_beginDelimiter[i] != ctx.buffer[ctx.mark]) {
+                        throw new ParseException("No Delimiter Found", ctx.mark);
                     }
                     if (_includeDelimiter) {
-                        bldr.append((char)(ctx.buffer[ctx.index]));
+                        bldr.append((char)(ctx.buffer[ctx.mark]));
                         if (bldr.length() == length) {
-                            ctx.index = ctx.index + 1;
+                            ctx.mark = ctx.mark + 1;
                             validateLength(bldr.length());
                             return bldr.toString();
                         }
                     }
-                    ctx.index = ctx.index + 1;
+                    ctx.mark = ctx.mark + 1;
                 }
             }
         }
-        while(ctx.index < ctx.length) {
+        while((ctx.mark - ctx.index) < ctx.length) {
             if (_endDelimiter != null) {
                 boolean found = true;
-                if ((ctx.index - offset + 1) >= _endDelimiter.length) {
+                if ((ctx.mark - ctx.index + 1) >= _endDelimiter.length) {
                     for (int i = 0; i < _endDelimiter.length; i++) {
-                        if (ctx.buffer[ctx.index - i] != _endDelimiter[_endDelimiter.length - i - 1]) {
+                        if (ctx.buffer[ctx.mark - i] != _endDelimiter[_endDelimiter.length - i - 1]) {
                             found = false;
                             break;
                         }
                     }
                     if (found) {
                         if (_includeDelimiter) {
-                            bldr.append((char)(ctx.buffer[ctx.index]));
+                            bldr.append((char)(ctx.buffer[ctx.mark]));
                         } else {
                             bldr.setLength(bldr.length() - _endDelimiter.length + 1);
                         }
-                        ctx.index = ctx.index + 1;
+                        ctx.mark = ctx.mark + 1;
                         validateLength(bldr.length());
                         return bldr.toString();
                     }
                 }
             }
-            if (_delimiterChars.matches(ctx.buffer[ctx.index])) {
+            if (_delimiterChars.matches(ctx.buffer[ctx.mark])) {
                 if (_includeDelimiter) {
-                    bldr.append((char)(ctx.buffer[ctx.index]));
+                    bldr.append((char)(ctx.buffer[ctx.mark]));
                 }
                 validateLength(bldr.length());
                 return bldr.toString();
             }
-            if (!_allowedChars.matches(ctx.buffer[ctx.index])) {
+            if (!_allowedChars.matches(ctx.buffer[ctx.mark])) {
                 throw new ParseException(
                         String.format("Character \"%s\" is not allowed, must be one of %s",
-                                CharacterList.CHARACTER_STRINGS[ctx.buffer[ctx.index]], _allowedChars), ctx.index);
+                                CharacterList.CHARACTER_STRINGS[ctx.buffer[ctx.mark]], _allowedChars), ctx.mark);
             }
-            bldr.append((char)(ctx.buffer[ctx.index]));
-            ctx.index = ctx.index + 1;
+            bldr.append((char)(ctx.buffer[ctx.mark]));
+            ctx.mark = ctx.mark + 1;
             if (bldr.length() == length) {
                 validateLength(bldr.length());
                 return bldr.toString();

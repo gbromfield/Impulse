@@ -109,6 +109,9 @@ public class TL1InputMessage extends TL1Message {
         ParseContext pc = new ParseContext(_buffer.getBackingArray(), 0, _buffer.getLength());
 
         _verb = verbParser.parse(pc);
+        if (_verb.equals(";")) {
+            return;
+        }
         cmdCodeDelParser.parse(pc);
         _mod1 = modParser.parse(pc);
         cmdCodeDelParser.parse(pc);

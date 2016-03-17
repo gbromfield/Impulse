@@ -109,7 +109,23 @@ public class TextParserTester {
                 .includeDelimiter(false);
 
         try {
-            System.out.println(p.parse(new ParseContext("/* gaga */".getBytes())));
+            String s = p.parse(new ParseContext("/* gaga */".getBytes()));
+            if (s.equals(" gaga ")) {
+                System.out.println(s + " SUCCESS");
+            } else {
+                System.out.println(s + " FAILURE");
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            String s = p.parse(new ParseContext("xxxxxxxxxxx /* blub */".getBytes(), 12, 10));
+            if (s.equals(" blub ")) {
+                System.out.println(s + " SUCCESS");
+            } else {
+                System.out.println(s + " FAILURE");
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
