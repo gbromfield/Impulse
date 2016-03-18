@@ -95,9 +95,9 @@ public class TL1InProgress extends BaseTransform {
                 if (_logger.isDebugEnabled()) {
                     _logger.debug("Finished delaying " + Impulse.format(_argMap));
                 }
-                _delayer.onTL1Out(_argMap, _msg);
+                _delayer.onTL1RespOut(_argMap, _msg);
             } else {
-                _delayer.onTL1Out(_argMap, _ackMsg);
+                _delayer.onTL1AckOut(_argMap, _ackMsg);
                 _timer.schedule(new DelayerTimerTask(_delayer, _argMap, _ackMsg, _msg, _delayInMS,
                         _ipIntervalInMS, _count - 1), _ipIntervalInMS);
             }
@@ -136,7 +136,7 @@ public class TL1InProgress extends BaseTransform {
         if (message instanceof TL1ResponseMessage) {
             int count = (int)(_delayInMS / _ipIntervalInMS);
             if (count < 1) {
-                onTL1Out(argMap, message);
+                onTL1RespOut(argMap, message);
             } else {
                 try {
                     TL1IPAckMessage ackMsg = new TL1IPAckMessage(((TL1ResponseMessage)message).getCTAG());
@@ -150,19 +150,35 @@ public class TL1InProgress extends BaseTransform {
     }
 
     /**
-     * [output] In progresses and responses.
+     * [output] In progresses.
      *
      * @param argMap
      */
-    @Output("onTL1Out")
-    public void onTL1Out(Map<String, Object> argMap, TL1Message message) {
+    @Output("onTL1AckOut")
+    public void onTL1AckOut(Map<String, Object> argMap, TL1Message message) {
         if (_logger.isDebugEnabled()) {
-            _logger.debug("onTL1Out: \r\n" + Impulse.format(argMap));
+            _logger.debug("onTL1AckOut: \r\n" + Impulse.format(argMap));
         }
         ByteBuffer buffer = ByteBuffer.allocate(message.getBuffer().getLength());
         buffer.put(message.getBuffer().getBackingArray(), message.getBuffer().getBackingArrayOffset(), message.getBuffer().getLength());
         buffer.flip();
-        next("onTL1Out", argMap, bytesTL1Message[0], buffer, stringTL1Message[0], message.toString(), tl1Message[0], message);
+        next("onTL1AckOut", argMap, bytesTL1Message[0], buffer, stringTL1Message[0], message.toString(), tl1Message[0], message);
+    }
+
+    /**
+     * [output] Responses.
+     *
+     * @param argMap
+     */
+    @Output("onTL1RespOut")
+    public void onTL1RespOut(Map<String, Object> argMap, TL1Message message) {
+        if (_logger.isDebugEnabled()) {
+            _logger.debug("onTL1RespOut: \r\n" + Impulse.format(argMap));
+        }
+        ByteBuffer buffer = ByteBuffer.allocate(message.getBuffer().getLength());
+        buffer.put(message.getBuffer().getBackingArray(), message.getBuffer().getBackingArrayOffset(), message.getBuffer().getLength());
+        buffer.flip();
+        next("onTL1RespOut", argMap, bytesTL1Message[0], buffer, stringTL1Message[0], message.toString(), tl1Message[0], message);
     }
 
     public void parseDelay(String delayValue) {
