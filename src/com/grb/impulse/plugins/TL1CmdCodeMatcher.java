@@ -29,6 +29,26 @@ public class TL1CmdCodeMatcher extends BaseTransform {
     public static final String MOD2_PROPERTY = "mod2";
 
     /**
+     * Regex tid string to match
+     */
+    public static final String TID_PROPERTY = "tid";
+
+    /**
+     * Regex aid string to match
+     */
+    public static final String AID_PROPERTY = "aid";
+
+    /**
+     * Regex ctag string to match
+     */
+    public static final String CTAG_PROPERTY = "ctag";
+
+    /**
+     * Regex atag string to match
+     */
+    public static final String ATAG_PROPERTY = "atag";
+
+    /**
      * Default regex verb
      * Specifiable in the configuration file or command line.
      */
@@ -46,9 +66,37 @@ public class TL1CmdCodeMatcher extends BaseTransform {
      */
     public static final String MOD2_PROPERTY_DEFAULT = "";
 
+    /**
+     * Default regex tid
+     * Specifiable in the configuration file or command line.
+     */
+    public static final String TID_PROPERTY_DEFAULT = "";
+
+    /**
+     * Default regex aid
+     * Specifiable in the configuration file or command line.
+     */
+    public static final String AID_PROPERTY_DEFAULT = "";
+
+    /**
+     * Default regex ctag
+     * Specifiable in the configuration file or command line.
+     */
+    public static final String CTAG_PROPERTY_DEFAULT = "";
+
+    /**
+     * Default regex atag
+     * Specifiable in the configuration file or command line.
+     */
+    public static final String ATAG_PROPERTY_DEFAULT = "";
+
     protected String _verb;
     protected String _mod1;
     protected String _mod2;
+    protected String _tid;
+    protected String _aid;
+    protected String _ctag;
+    protected String _atag;
 
     public TL1CmdCodeMatcher(String transformName, String instanceName,
                              TransformCreationContext transformCreationContext, Object... args) {
@@ -61,6 +109,10 @@ public class TL1CmdCodeMatcher extends BaseTransform {
         _verb = getStringProperty(VERB_PROPERTY);
         _mod1 = getStringProperty(MOD1_PROPERTY);
         _mod2 = getStringProperty(MOD2_PROPERTY);
+        _tid = getStringProperty(TID_PROPERTY);
+        _aid = getStringProperty(AID_PROPERTY);
+        _ctag = getStringProperty(CTAG_PROPERTY);
+        _atag = getStringProperty(ATAG_PROPERTY);
     }
 
     /**
@@ -76,25 +128,34 @@ public class TL1CmdCodeMatcher extends BaseTransform {
         String verb = null;
         String mod1 = null;
         String mod2 = null;
+        String tid = null;
+        String aid = null;
+        String ctag = null;
+        String atag = null;
         if (message instanceof TL1InputMessage) {
             verb = ((TL1InputMessage)message).getVerb();
             mod1 = ((TL1InputMessage)message).getMod1();
             mod2 = ((TL1InputMessage)message).getMod2();
+            tid = ((TL1InputMessage)message).getTid();
+            aid = ((TL1InputMessage)message).getAid();
+            ctag = ((TL1InputMessage)message).getCTAG();
         } else if (message instanceof TL1AOMessage) {
             verb = ((TL1AOMessage) message).getVerb();
             mod1 = ((TL1AOMessage) message).getMod1();
             mod2 = ((TL1AOMessage) message).getMod2();
+            tid = ((TL1AOMessage) message).getTid();
+            atag = ((TL1AOMessage) message).getATAG();
         } else if (message instanceof TL1AckMessage) {
             verb = ((TL1AckMessage)message).getAckCode();
         }
-        if (match(verb, mod1, mod2)) {
+        if (match(verb, mod1, mod2, tid, aid, ctag, atag)) {
             onCmdCodeMatch(argMap);
         } else {
             onNoCmdCodeMatch(argMap);
         }
     }
 
-    private boolean match(String verb, String mod1, String mod2) {
+    private boolean match(String verb, String mod1, String mod2, String tid, String aid, String ctag, String atag) {
         if ((_verb != null) && (_verb.length() > 0) && (verb != null) && (verb.length() > 0)) {
             if (!verb.matches(_verb)) {
                 return false;
@@ -107,6 +168,26 @@ public class TL1CmdCodeMatcher extends BaseTransform {
         }
         if ((_mod2 != null) && (_mod2.length() > 0) && (mod2 != null) && (mod2.length() > 0)) {
             if (!mod2.matches(_mod2)) {
+                return false;
+            }
+        }
+        if ((_tid != null) && (_tid.length() > 0) && (tid != null) && (tid.length() > 0)) {
+            if (!tid.matches(_tid)) {
+                return false;
+            }
+        }
+        if ((_aid != null) && (_aid.length() > 0) && (aid != null) && (aid.length() > 0)) {
+            if (!aid.matches(_aid)) {
+                return false;
+            }
+        }
+        if ((_ctag != null) && (_ctag.length() > 0) && (ctag != null) && (ctag.length() > 0)) {
+            if (!ctag.matches(_ctag)) {
+                return false;
+            }
+        }
+        if ((_atag != null) && (_atag.length() > 0) && (atag != null) && (atag.length() > 0)) {
+            if (!atag.matches(_atag)) {
                 return false;
             }
         }
@@ -174,6 +255,34 @@ public class TL1CmdCodeMatcher extends BaseTransform {
                 new SystemPropertySource<String>(ctx.getPropertyString(MOD2_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
                 new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(MOD2_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
         p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Mod2 to match");
+        props.put(p.getId(), p);
+
+        p = new Property<String>(TID_PROPERTY, TID_PROPERTY_DEFAULT, true,
+                new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
+                new SystemPropertySource<String>(ctx.getPropertyString(TID_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(TID_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+        p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Tid to match");
+        props.put(p.getId(), p);
+
+        p = new Property<String>(AID_PROPERTY, AID_PROPERTY_DEFAULT, true,
+                new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
+                new SystemPropertySource<String>(ctx.getPropertyString(AID_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(AID_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+        p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Aid to match");
+        props.put(p.getId(), p);
+
+        p = new Property<String>(CTAG_PROPERTY, CTAG_PROPERTY_DEFAULT, true,
+                new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
+                new SystemPropertySource<String>(ctx.getPropertyString(CTAG_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(CTAG_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+        p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Ctag to match");
+        props.put(p.getId(), p);
+
+        p = new Property<String>(ATAG_PROPERTY, ATAG_PROPERTY_DEFAULT, true,
+                new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
+                new SystemPropertySource<String>(ctx.getPropertyString(ATAG_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(ATAG_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+        p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Atag to match");
         props.put(p.getId(), p);
     }
 }
