@@ -199,12 +199,12 @@ public class TL1CmdCodeMatcher extends BaseTransform {
      *
      * @param argMap
      */
-    @Output("onCmdCodeMatch")
+    @Output("onCmdMatch")
     public void onCmdCodeMatch(Map<String, Object> argMap) {
         if (_logger.isDebugEnabled()) {
-            _logger.debug("onCmdCodeMatch: \r\n" + Impulse.format(argMap));
+            _logger.debug("onCmdMatch: \r\n" + Impulse.format(argMap));
         }
-        next("onCmdCodeMatch", argMap);
+        next("onCmdMatch", argMap);
     }
 
     /**
@@ -212,12 +212,12 @@ public class TL1CmdCodeMatcher extends BaseTransform {
      *
      * @param argMap
      */
-    @Output("onNoCmdCodeMatch")
+    @Output("onNoCmdMatch")
     public void onNoCmdCodeMatch(Map<String, Object> argMap) {
         if (_logger.isDebugEnabled()) {
-            _logger.debug("onNoCmdCodeMatch: \r\n" + Impulse.format(argMap));
+            _logger.debug("onNoCmdMatch: \r\n" + Impulse.format(argMap));
         }
-        next("onNoCmdCodeMatch", argMap);
+        next("onNoCmdMatch", argMap);
     }
 
     /**

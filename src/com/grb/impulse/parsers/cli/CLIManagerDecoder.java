@@ -11,15 +11,18 @@ public class CLIManagerDecoder {
 
     protected com.grb.util.ByteBuffer _buffer;
     protected int _maxBufferSize;
-    protected String _commandCompletionString;
-    protected ArrayMatcher _matcher;
+    protected String[] _commandCompletionStrings;
+    protected ArrayMatcher[] _matcher;
 
-    public CLIManagerDecoder(int maxBufferSize, String commandCompletionString) {
+    public CLIManagerDecoder(int maxBufferSize, String[] commandCompletionStrings) {
         _maxBufferSize = maxBufferSize;
         _buffer = new com.grb.util.ByteBuffer(_maxBufferSize);
-        _commandCompletionString = commandCompletionString;
-        byte[] commandCompletionBytes = _commandCompletionString.getBytes();
-        _matcher = new ArrayMatcher(commandCompletionBytes);
+        _commandCompletionStrings = commandCompletionStrings;
+        _matcher = new ArrayMatcher[_commandCompletionStrings.length];
+        for(int i = 0; i < commandCompletionStrings.length; i++) {
+            byte[] commandCompletionBytes = _commandCompletionStrings[i].getBytes();
+            _matcher[i] = new ArrayMatcher(commandCompletionBytes);
+        }
     }
 
     public CLIMessage decodeCLIMessage(ByteBuffer readBuffer) throws CLIMessageMaxSizeExceededException {
@@ -30,10 +33,15 @@ public class CLIManagerDecoder {
                 if (_buffer.getLength() > _maxBufferSize) {
                     throw new CLIMessageMaxSizeExceededException(String.format("Error: maximum %d character size of input message reached", _maxBufferSize));
                 }
-                if (_matcher.match(b)) {
-                    CLIMessage retMsg = new CLIMessage(_buffer);
-                    _buffer.clear();
-                    return retMsg;
+                for(int i = 0; i < _matcher.length; i++) {
+                    if (_matcher[i].match(b)) {
+                        CLIMessage retMsg = new CLIMessage(_buffer, _matcher[i].getLength());
+                        _buffer.clear();
+                        for (int j = 0; j < _matcher.length; j++) {
+                            _matcher[j].reset();
+                        }
+                        return retMsg;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -69,7 +77,7 @@ public class CLIManagerDecoder {
     }
 
     public static void main(String[] args) {
-        CLIManagerDecoder decoder = new CLIManagerDecoder(1000, "\n");
+        CLIManagerDecoder decoder = new CLIManagerDecoder(1000, new String[] {"\n"});
         String[][] strs = {
                 {"YYY\ngaga: ", "YYY"},
         };

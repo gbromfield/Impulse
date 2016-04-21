@@ -55,29 +55,30 @@ public class CLIManagerFramer extends BaseTransform {
     /**
      * CLI Command Completion Character.
      */
-    public static final String COMMAND_COMPLETED_CHAR_PROPERTY = "commandCompletionString";
+    public static final String COMMAND_COMPLETED_STRINGS_PROPERTY = "commandCompletionStrings";
 
     /**
      * Default CLI Command Completion Character.
      */
-    public static final String COMMAND_COMPLETED_CHAR_PROPERTY_DEFAULT = "\r";
+    public static final String COMMAND_COMPLETED_STRINGS_PROPERTY_DEFAULT = "\r";
 
     CLIManagerDecoder _decoder;
-    String _commandCompletionString;
+    String _commandCompletionStrings;
 
     public CLIManagerFramer(String transformName, String instanceName,
                             TransformCreationContext transformCreationContext, Object... args) {
         super(transformName, instanceName, transformCreationContext);
         _decoder = null;
-        _commandCompletionString = null;
+        _commandCompletionStrings = null;
     }
 
     @Override
     public void init() throws Exception {
         super.init();
-        _commandCompletionString = getStringProperty(COMMAND_COMPLETED_CHAR_PROPERTY);
+        _commandCompletionStrings = getStringProperty(COMMAND_COMPLETED_STRINGS_PROPERTY);
+        String[] commandCompletionStringsArray = _commandCompletionStrings.split(",");
         int maxBufferSize = getIntegerProperty(MAX_MESSAGE_SIZE_IN_CHARS_PROPERTY);
-        _decoder = new CLIManagerDecoder(maxBufferSize, _commandCompletionString);
+        _decoder = new CLIManagerDecoder(maxBufferSize, commandCompletionStringsArray);
     }
 
     /**
@@ -143,10 +144,10 @@ public class CLIManagerFramer extends BaseTransform {
         p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Maximum input message size in characters");
         props.put(p.getId(), p);
 
-        p = new Property<String>(COMMAND_COMPLETED_CHAR_PROPERTY, COMMAND_COMPLETED_CHAR_PROPERTY_DEFAULT,
+        p = new Property<String>(COMMAND_COMPLETED_STRINGS_PROPERTY, COMMAND_COMPLETED_STRINGS_PROPERTY_DEFAULT,
                 new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
-                new SystemPropertySource<String>(ctx.getPropertyString(COMMAND_COMPLETED_CHAR_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
-                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(COMMAND_COMPLETED_CHAR_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+                new SystemPropertySource<String>(ctx.getPropertyString(COMMAND_COMPLETED_STRINGS_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(COMMAND_COMPLETED_STRINGS_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
         p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Command Completion String");
         props.put(p.getId(), p);
     }

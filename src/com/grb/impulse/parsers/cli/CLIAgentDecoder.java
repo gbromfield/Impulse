@@ -37,13 +37,13 @@ public class CLIAgentDecoder {
                 }
                 Integer match = null;
                 if (_promptMatchers == null) {
-                    CLIMessage retMsg = new CLIMessage(_buffer);
+                    CLIMessage retMsg = new CLIMessage(_buffer, 0);
                     _buffer.clear();
                     return retMsg;
                 } else {
                     for (int i = 0; i < _promptMatchers.length; i++) {
                         if (_promptMatchers[i].match(b)) {
-                            CLIMessage retMsg = new CLIMessage(_buffer, 0, _buffer.getLength() - _promptMatchers[i].getLength(), _promptMatchers[i].getLength());
+                            CLIMessage retMsg = new CLIMessage(_buffer, _promptMatchers[i].getLength());
                             _buffer.clear();
                             for(int j = 0; j < _promptMatchers.length; j++) {
                                 _promptMatchers[j].reset();

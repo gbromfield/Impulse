@@ -6,33 +6,45 @@ import com.grb.util.ByteBuffer;
  * Created by gbromfie on 4/18/16.
  */
 public class CLIMessage {
-    protected String _messageStr;
+    protected int _terminalLength;
     protected ByteBuffer _message;
-    protected String _promptStr;
-    protected ByteBuffer _prompt;
 
-    public CLIMessage(ByteBuffer buffer) {
-        this(buffer, 0, buffer.getLength(), 0);
+    public CLIMessage(ByteBuffer buffer, int terminalLength) {
+        this(buffer, 0, buffer.getLength(), terminalLength);
     }
 
-    public CLIMessage(ByteBuffer buffer, int offset, int length, int promptLength) {
-        byte[] backing = buffer.getBackingArray();
-        StringBuilder bldr = new StringBuilder();
-        for(int i = offset; i < (offset + length); i++) {
-            bldr.append((char)backing[i]);
-        }
-        _messageStr = bldr.toString();
+    public CLIMessage(ByteBuffer buffer, int offset, int length, int terminalLength) {
         _message = new ByteBuffer(length);
-        _message.writeBytes(backing, offset, length);
-        if (promptLength > 0) {
-            bldr = new StringBuilder();
-            for(int i = 0; i < promptLength; i++) {
-                bldr.append((char)backing[length+i]);
-            }
-            _promptStr = bldr.toString();
-            _prompt = new ByteBuffer(promptLength);
-            _prompt.writeBytes(backing, length, promptLength);
+        _message.write(buffer.getBackingArray(), offset, length);
+        _terminalLength = terminalLength;
+    }
+
+    public ByteBuffer getData() {
+        ByteBuffer b = new ByteBuffer(_message.getLength()-_terminalLength);
+        b.writeBytes(_message.getBackingArray(), 0, _message.getLength()-_terminalLength);
+        return b;
+    }
+
+    public String getDataStr() {
+        StringBuilder bldr = new StringBuilder();
+        for(int i = 0; i < (_message.getLength()-_terminalLength); i++) {
+            bldr.append((char)_message.getBackingArray()[i]);
         }
+        return bldr.toString();
+    }
+
+    public ByteBuffer getTerminal() {
+        ByteBuffer b = new ByteBuffer(_terminalLength);
+        b.writeBytes(_message.getBackingArray(), _message.getLength() - _terminalLength, _terminalLength);
+        return b;
+    }
+
+    public String getTerminalStr() {
+        StringBuilder bldr = new StringBuilder();
+        for(int i = _message.getLength()-_terminalLength; i < _message.getLength(); i++) {
+            bldr.append((char)_message.getBackingArray()[i]);
+        }
+        return bldr.toString();
     }
 
     public ByteBuffer getMessage() {
@@ -40,15 +52,11 @@ public class CLIMessage {
     }
 
     public String getMessageStr() {
-        return _messageStr;
-    }
-
-    public ByteBuffer getPrompt() {
-        return _prompt;
-    }
-
-    public String getPromptStr() {
-        return _promptStr;
+        StringBuilder bldr = new StringBuilder();
+        for(int i = 0; i < _message.getLength(); i++) {
+            bldr.append((char)_message.getBackingArray()[i]);
+        }
+        return bldr.toString();
     }
 
     public String toString() {

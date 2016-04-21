@@ -43,38 +43,6 @@ public class CLIAgentFramer extends BaseTransform {
     final public static Object[] cliMessage = {"CLIAgentFramer.CLIMessage.cliMessage", CLIMessage.class};
 
     /**
-     * This variable is a place holder for a transform argument.
-     * Argument syntax must follow <transform simple class name>.<type simple class name>.<field name>
-     * This transforms outputs data into the argMap using this as a key.
-     */
-    @Argument
-    final public static Object[] bytesCLIPreamble = {"CLIAgentFramer.ByteBuffer.bytesCLIPreamble", ByteBuffer.class};
-
-    /**
-     * This variable is a place holder for a transform argument.
-     * Argument syntax must follow <transform simple class name>.<type simple class name>.<field name>
-     * This transforms outputs data into the argMap using this as a key.
-     */
-    @Argument
-    final public static Object[] stringCLIPreamble = {"CLIAgentFramer.String.stringCLIPreamble", String.class};
-
-    /**
-     * This variable is a place holder for a transform argument.
-     * Argument syntax must follow <transform simple class name>.<type simple class name>.<field name>
-     * This transforms outputs data into the argMap using this as a key.
-     */
-    @Argument
-    final public static Object[] bytesCLIPrompt = {"CLIAgentFramer.ByteBuffer.bytesCLIPrompt", ByteBuffer.class};
-
-    /**
-     * This variable is a place holder for a transform argument.
-     * Argument syntax must follow <transform simple class name>.<type simple class name>.<field name>
-     * This transforms outputs data into the argMap using this as a key.
-     */
-    @Argument
-    final public static Object[] stringCLIPrompt = {"CLIAgentFramer.String.stringCLIPrompt", String.class};
-
-    /**
      * Maximum CLI input message message.
      */
     public static final String MAX_MESSAGE_SIZE_IN_CHARS_PROPERTY = "maxMessageSizeInChars";
@@ -98,14 +66,12 @@ public class CLIAgentFramer extends BaseTransform {
 
     CLIAgentDecoder _decoder;
     String[] _prompts;
-    boolean _firstTime;
 
     public CLIAgentFramer(String transformName, String instanceName,
                           TransformCreationContext transformCreationContext, Object... args) {
         super(transformName, instanceName, transformCreationContext);
         _decoder = null;
         _prompts = null;
-        _firstTime = true;
     }
 
     @Override
@@ -133,12 +99,8 @@ public class CLIAgentFramer extends BaseTransform {
         while(readBuffer.hasRemaining()) {
             CLIMessage msg = _decoder.decodeCLIMessage(readBuffer);
             if (msg != null) {
-                if (_firstTime) {
-                    System.out.println("Agent Preamble = \"" + msg + "\"");
-                } else {
-                    System.out.println("Agent = \"" + msg + "\"");
-                }
-                System.out.println("Agent Prompt = \"" + msg.getPromptStr() + "\"");
+                System.out.println("Agent = \"" + msg.getDataStr() + "\"");
+                System.out.println("Agent Prompt = \"" + msg.getTerminalStr() + "\"");
 
                 com.grb.util.ByteBuffer buffer = msg.getMessage();
                 ByteBuffer out = ByteBuffer.allocate(buffer.getLength());
@@ -149,19 +111,7 @@ public class CLIAgentFramer extends BaseTransform {
 //                fmter.setLimit(10000, ByteArrayFormatter.LimitType.BYTES);
 //                System.out.println(fmter.format(msg.getMessage().getBackingArray(), 0, msg.getMessage().getLength()));
 
-                if (_firstTime) {
-                    onCLIPreamble(argMap, out, msg.toString());
-                    _firstTime = false;
-                } else {
-                    onCLIMessage(argMap, out, msg.toString(), msg);
-                }
-
-                buffer = msg.getPrompt();
-                ByteBuffer outP = ByteBuffer.allocate(buffer.getLength());
-                outP.put(buffer.getBackingArray(), buffer.getBackingArrayOffset(), buffer.getLength());
-                outP.flip();
-//                System.out.println(fmter.format(msg.getPrompt().getBackingArray(), 0, msg.getPrompt().getLength()));
-                onCLIPrompt(argMap, outP, msg.getPromptStr());
+                onCLIMessage(argMap, out, msg.getMessageStr(), msg);
             }
         }
     }
@@ -177,32 +127,6 @@ public class CLIAgentFramer extends BaseTransform {
             _logger.debug("onCLIMessage: \r\n" + msg);
         }
         next("onCLIMessage", argMap, bytesCLIMessage[0], buffer, stringCLIMessage[0], msg, cliMessage[0], cliMsg);
-    }
-
-    /**
-     * [output] Called on a framed CLI preamble.
-     *
-     * @param preamble
-     */
-    @Output("onCLIPreamble")
-    public void onCLIPreamble(Map<String, Object> argMap, ByteBuffer buffer, String preamble) {
-        if (_logger.isDebugEnabled()) {
-            _logger.debug("onCLIPreamble: \r\n" + preamble);
-        }
-        next("onCLIPreamble", argMap, bytesCLIPreamble[0], buffer, stringCLIPreamble[0], preamble);
-    }
-
-    /**
-     * [output] Called on a framed http message.
-     *
-     * @param prompt
-     */
-    @Output("onCLIPrompt")
-    public void onCLIPrompt(Map<String, Object> argMap, ByteBuffer buffer, String prompt) {
-        if (_logger.isDebugEnabled()) {
-            _logger.debug("onCLIPrompt: \r\n" + prompt);
-        }
-        next("onCLIPrompt", argMap, bytesCLIPrompt[0], buffer, stringCLIPrompt[0], prompt);
     }
 
     /**
