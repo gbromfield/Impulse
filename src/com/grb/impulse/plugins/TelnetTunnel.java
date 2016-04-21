@@ -420,6 +420,7 @@ public class TelnetTunnel extends BaseTransform implements IoHandler, IoFutureLi
     @Override
     public void sessionClosed(IoSession ioSession) throws Exception {
         close();
+        dispose();
     }
 
     @Override

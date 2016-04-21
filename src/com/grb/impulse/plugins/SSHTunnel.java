@@ -56,6 +56,7 @@ public class SSHTunnel extends BaseTransform implements SessionListener {
     @Override
     public void sessionClosed(Session session) {
         close();
+        dispose();
     }
 
     public class SshReader implements SshFutureListener<IoReadFuture> {
