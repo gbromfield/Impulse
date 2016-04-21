@@ -100,6 +100,8 @@ public class TL1InputMessage extends TL1Message {
             if ((b == ';') && (_stack.size() == 0)) {
                 parseTL1();
                 return true;
+            } else if (b == 4) {    // EOT
+                return true;
             }
         }
         return false;
