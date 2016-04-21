@@ -128,6 +128,7 @@
 		<copy file="${local.lib.dir}/grb-util-transport-1.0.jar" todir="${basedir}/${dist.dir}"/>
 		<copy file="build/run.bat" todir="${basedir}/${dist.dir}"/>
 		<copy file="build/run.sh" todir="${basedir}/${dist.dir}"/>
+		<copy file="keys/host.ser" todir="${basedir}/${dist.dir}/keys"/>
 		<copy file="readme.txt" todir="${basedir}/${dist.dir}"/>
 		<copy file="release.txt" todir="${basedir}/${dist.dir}"/>
 		<copy file="config/log4j.properties" todir="${basedir}/${dist.dir}"/>
