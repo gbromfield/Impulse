@@ -21,7 +21,7 @@ public class TL1ManagerDecoder extends TL1Decoder {
                 _message = null;
                 return tmp;
             }
-        } catch(TL1MessageMaxSizeExceededException e) {
+        } catch(Exception e) {
             _message = null;
             throw e;
         }
