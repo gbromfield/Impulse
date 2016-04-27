@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by gbromfie on 11/23/15.
  */
-public class TL1CmdCodeMatcher extends BaseTransform {
+public class TL1CmdMatcher extends BaseTransform {
 
     /**
      * Regex verb string to match
@@ -98,8 +98,8 @@ public class TL1CmdCodeMatcher extends BaseTransform {
     protected String _ctag;
     protected String _atag;
 
-    public TL1CmdCodeMatcher(String transformName, String instanceName,
-                             TransformCreationContext transformCreationContext, Object... args) {
+    public TL1CmdMatcher(String transformName, String instanceName,
+                         TransformCreationContext transformCreationContext, Object... args) {
         super(transformName, instanceName, transformCreationContext);
     }
 
@@ -148,50 +148,92 @@ public class TL1CmdCodeMatcher extends BaseTransform {
         } else if (message instanceof TL1AckMessage) {
             verb = ((TL1AckMessage)message).getAckCode();
         }
-        if (match(verb, mod1, mod2, tid, aid, ctag, atag)) {
+        if (match(message, verb, mod1, mod2, tid, aid, ctag, atag)) {
             onCmdCodeMatch(argMap);
         } else {
             onNoCmdCodeMatch(argMap);
         }
     }
 
-    private boolean match(String verb, String mod1, String mod2, String tid, String aid, String ctag, String atag) {
-        if ((_verb != null) && (_verb.length() > 0) && (verb != null) && (verb.length() > 0)) {
-            if (!verb.matches(_verb)) {
-                return false;
-            }
+    private boolean match(TL1Message message, String verb, String mod1, String mod2, String tid, String aid, String ctag, String atag) {
+        StringBuilder bldr = new StringBuilder();
+        bldr.append(message.toString());
+        bldr.append("\n");
+        boolean success = match("Verb", verb, _verb, bldr);
+        if (!success) {
+            return false;
         }
-        if ((_mod1 != null) && (_mod1.length() > 0) && (mod1 != null) && (mod1.length() > 0)) {
-            if (!mod1.matches(_mod1)) {
-                return false;
-            }
+
+        bldr.append("\n");
+        success = match("Mod1", mod1, _mod1, bldr);
+        if (!success) {
+            return false;
         }
-        if ((_mod2 != null) && (_mod2.length() > 0) && (mod2 != null) && (mod2.length() > 0)) {
-            if (!mod2.matches(_mod2)) {
-                return false;
-            }
+
+        bldr.append("\n");
+        success = match("Mod2", mod2, _mod2, bldr);
+        if (!success) {
+            return false;
         }
-        if ((_tid != null) && (_tid.length() > 0) && (tid != null) && (tid.length() > 0)) {
-            if (!tid.matches(_tid)) {
-                return false;
-            }
+
+        bldr.append("\n");
+        success = match("Tid", tid, _tid, bldr);
+        if (!success) {
+            return false;
         }
-        if ((_aid != null) && (_aid.length() > 0) && (aid != null) && (aid.length() > 0)) {
-            if (!aid.matches(_aid)) {
-                return false;
-            }
+
+        bldr.append("\n");
+        success = match("Aid", aid, _aid, bldr);
+        if (!success) {
+            return false;
         }
-        if ((_ctag != null) && (_ctag.length() > 0) && (ctag != null) && (ctag.length() > 0)) {
-            if (!ctag.matches(_ctag)) {
-                return false;
-            }
+
+        bldr.append("\n");
+        success = match("Ctag", ctag, _ctag, bldr);
+        if (!success) {
+            return false;
         }
-        if ((_atag != null) && (_atag.length() > 0) && (atag != null) && (atag.length() > 0)) {
-            if (!atag.matches(_atag)) {
-                return false;
-            }
+
+        bldr.append("\n");
+        success = match("Atag", atag, _atag, bldr);
+        if (!success) {
+            return false;
+        }
+
+        if (_logger.isInfoEnabled()) {
+            _logger.info(bldr.toString());
         }
         return true;
+    }
+
+    public boolean match(String paramStr, String givenStr, String matchStr, StringBuilder bldr) {
+        boolean success = true;
+        bldr.append(paramStr);
+        bldr.append(" given=\"");
+        if ((givenStr != null) && (givenStr.length() > 0)) {
+            givenStr = givenStr.toUpperCase();
+            bldr.append(givenStr);
+        } else {
+            bldr.append("UNKNOWN");
+        }
+        bldr.append("\" match=\"");
+        if ((matchStr != null) && (matchStr.length() > 0)) {
+            bldr.append(matchStr);
+            bldr.append("\" result=");
+            if (matchStr.matches(givenStr)) {
+                bldr.append("MATCH");
+            } else {
+                bldr.append("NO MATCH");
+                if (_logger.isInfoEnabled()) {
+                    _logger.info(bldr.toString());
+                }
+                success = false;
+            }
+        } else {
+            bldr.append("NOT SPECIFIED");
+            bldr.append("\" result=MATCH");
+        }
+        return success;
     }
 
     /**
