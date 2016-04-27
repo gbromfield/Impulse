@@ -11,4 +11,8 @@ JMXARG4="-Dcom.sun.management.jmxremote.authenticate=false"
 OPTJMXARG1="-Djava.rmi.server.hostname=xxx"
 # Optional Log4J debugging
 OPTLOG4JARGS="-Dlog4j.debug"
-java -cp "*" -Dlog4j.configuration="file:log4j.properties" "$JMXARG1" "$JMXARG2" "$JMXARG3" "$JMXARG4" com.grb.impulse.Impulse "$@"
+if [ -z "$JAVA_HOME" ]; then
+  java -cp "*" -Dlog4j.configuration="file:log4j.properties" "$JMXARG1" "$JMXARG2" "$JMXARG3" "$JMXARG4" com.grb.impulse.Impulse "$@"
+else
+  $JAVA_HOME/bin/java -cp "*" -Dlog4j.configuration="file:log4j.properties" "$JMXARG1" "$JMXARG2" "$JMXARG3" "$JMXARG4" com.grb.impulse.Impulse "$@"
+fi
