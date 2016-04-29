@@ -217,17 +217,25 @@ public class TL1CmdMatcher extends BaseTransform {
             bldr.append("UNKNOWN");
         }
         bldr.append("\" match=\"");
-        if ((matchStr != null) && (matchStr.length() > 0)) {
+        if (((matchStr != null) && (matchStr.length() > 0))) {
             bldr.append(matchStr);
             bldr.append("\" result=");
-            if (matchStr.matches(givenStr)) {
-                bldr.append("MATCH");
-            } else {
+            if (givenStr == null) {
                 bldr.append("NO MATCH");
                 if (_logger.isInfoEnabled()) {
                     _logger.info(bldr.toString());
                 }
                 success = false;
+            } else {
+                if (matchStr.matches(givenStr)) {
+                    bldr.append("MATCH");
+                } else {
+                    bldr.append("NO MATCH");
+                    if (_logger.isInfoEnabled()) {
+                        _logger.info(bldr.toString());
+                    }
+                    success = false;
+                }
             }
         } else {
             bldr.append("NOT SPECIFIED");
