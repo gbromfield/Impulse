@@ -222,6 +222,20 @@ public class CharacterList {
         return count;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof CharacterList) {
+            CharacterList other = (CharacterList)obj;
+            for (int i = 0; i < NUMBER_CHARACTERS; i++) {
+                if (_charList[i] != other._charList[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     public String toString() {
         StringBuilder bldr = new StringBuilder("[");
         for(int i = 0; i < NUMBER_CHARACTERS; i++) {

@@ -1,5 +1,11 @@
 package com.grb.impulse.parsers.tl1.parser;
 
+import com.grb.impulse.parsers.tl1.TL1AgentDecoder;
+import com.grb.impulse.parsers.tl1.TL1Message;
+import com.grb.impulse.parsers.tl1.TL1MessageMaxSizeExceededException;
+import com.grb.impulse.parsers.tl1.TL1ResponseMessage;
+
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 
 /**
@@ -44,7 +50,92 @@ public class TextParserTester {
         return (failure > 0);
     }
 
+    protected static final TextParser optionalSpacesParser = new TextParser()
+            .setAllowedChars(CharacterList.NO_CHARS)
+            .addAllowedChar(' ')
+            .setDelimiterChars(CharacterList.ALL_CHARS)
+            .removeDelimeterChar(' ')
+            .includeDelimiter(false);
+
+    protected static final TextParser mandatorySpacesParser = new TextParser(optionalSpacesParser)
+            .setLengths(1, Integer.MAX_VALUE);
+
+    protected static final TextParser dateParser = new TextParser()
+            .setAllowedChars(CharacterList.NUMBER_CHARS)
+            .addAllowedChar('-')
+            .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
+            .includeDelimiter(false)
+            .setLengths(10, 10);
+
+    protected static final TextParser timeParser = new TextParser()
+            .setAllowedChars(CharacterList.NUMBER_CHARS)
+            .addAllowedChar(':')
+            .addAllowedChar(',')
+            .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
+            .includeDelimiter(false)
+            .setLengths(12, 12);
+
+    protected static final TextParser textFieldParser = new TextParser()
+            .setAllowedChars(CharacterList.ALPHABETIC_MINUS_WHITESPACE_CHARS)
+            .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
+            .includeDelimiter(false);
+
+    protected static final TextParser bracketParser = new TextParser()
+            .setDelimiterStrings("[", "]")
+            .setAllowedChars(CharacterList.ALPHABETIC_CHARS)
+            .includeDelimiter(true);
+
+    protected static final TextParser LessGreaterThanParser = new TextParser()
+            .setAllowedChars(CharacterList.NO_CHARS)
+            .addAllowedChar('<')
+            .addAllowedChar('>')
+            .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
+            .setLengths(1, 1)
+            .includeDelimiter(false);
+
+    static public void test2() {
+//        String input = "2016-04-29 16:41:52,009 INFO     twisted      REVERSE";
+        String input = "2016-04-29 16:41:53,886 INFO     bpprov       [cbbc1be6-8999-4780-b52f-924dabf45826] [Tl1Endpoint] <\n" +
+            "\r" +
+            "\n" +
+            "\n" +
+            "   \"PV0247D\" 16-04-29 20:40:52\r\n" +
+            "M  2 COMPLD\n" +
+            "   \"CIENA,\\\"6500 32-SLOT OPTICAL\\\",CNE,\\\"REL1150Z.QG\\\"\"\n" +
+            ";\n";
+        ParseContext pc = new ParseContext(input.getBytes(), 0, input.length());
+        try {
+            System.out.println(dateParser.parse(pc));
+            mandatorySpacesParser.parse(pc);
+            System.out.println(timeParser.parse(pc));
+            mandatorySpacesParser.parse(pc);
+            System.out.println(textFieldParser.parse(pc));
+            mandatorySpacesParser.parse(pc);
+            System.out.println(textFieldParser.parse(pc));
+            mandatorySpacesParser.parse(pc);
+            System.out.println(bracketParser.parse(pc));
+            mandatorySpacesParser.parse(pc);
+            System.out.println(bracketParser.parse(pc));
+            mandatorySpacesParser.parse(pc);
+            System.out.println(LessGreaterThanParser.parse(pc));
+            // run the rest through a TL1 Parser
+            ByteBuffer tl1Buffer = ByteBuffer.allocate(pc.length);
+            tl1Buffer.put(pc.buffer, pc.mark + 1, pc.length - pc.mark - 1);
+            tl1Buffer.flip();
+            TL1AgentDecoder agentDecoder = new TL1AgentDecoder();
+            TL1ResponseMessage tl1Msg = (TL1ResponseMessage)agentDecoder.decodeTL1Message(tl1Buffer);
+            // DO WE WANT LOG MESSAGE TIME AND DATE OR TL! MESSAGE TIME AND DATE??
+            System.out.println(String.format("== %s ==", tl1Msg.getDate()));
+            System.out.println(String.format("%s -> %s : %s %s %s", tl1Msg.getTid(), "RA", tl1Msg.getTime(), tl1Msg.getCTAG(), tl1Msg.getComplCode()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (TL1MessageMaxSizeExceededException e) {
+            e.printStackTrace();
+        }
+    }
+
     static public void main(String[] args) {
+        test2();
         boolean failure = false;
         TextParser elem = new TextParser()
                 .setAllowedChars(CharacterList.ALPHABETIC_CHARS);
