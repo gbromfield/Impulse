@@ -12,6 +12,7 @@ public class TextParser {
     private boolean _includeDelimiter;
     private CharacterList _allowedChars;
     private CharacterList _delimiterChars;
+    private boolean _endOfBufferDelimeter;
     private int _minLength;
     private int _maxLength;
 
@@ -21,6 +22,7 @@ public class TextParser {
         _includeDelimiter = true;
         _allowedChars = new CharacterList(CharacterList.ALL_CHARS);
         _delimiterChars = new CharacterList(CharacterList.NO_CHARS);
+        _endOfBufferDelimeter = false;
         _minLength = 0;
         _maxLength = Integer.MAX_VALUE;
     }
@@ -31,6 +33,7 @@ public class TextParser {
         _includeDelimiter = copy._includeDelimiter;
         _allowedChars = new CharacterList(copy._allowedChars);
         _delimiterChars = new CharacterList(copy._delimiterChars);
+        _endOfBufferDelimeter = copy._endOfBufferDelimeter;
         _minLength = copy._minLength;
         _maxLength = copy._maxLength;
     }
@@ -52,6 +55,16 @@ public class TextParser {
 
     public TextParser removeDelimeterChar(char c) {
         _delimiterChars.remove(c);
+        return this;
+    }
+
+    public TextParser addEOBDelimeter() {
+        _endOfBufferDelimeter = true;
+        return this;
+    }
+
+    public TextParser removeEOBDelimeter() {
+        _endOfBufferDelimeter = false;
         return this;
     }
 
@@ -162,6 +175,7 @@ public class TextParser {
             if (_delimiterChars.matches(ctx.buffer[ctx.mark])) {
                 if (_includeDelimiter) {
                     bldr.append((char)(ctx.buffer[ctx.mark]));
+                    ctx.mark = ctx.mark + 1;
                 }
                 validateLength(bldr.length());
                 return bldr.toString();
@@ -178,7 +192,14 @@ public class TextParser {
                 return bldr.toString();
             }
         }
-        return bldr.toString();
+        if (_delimiterChars.equals(CharacterList.NO_CHARS)) {
+            return bldr.toString();
+        } else {
+            if (_endOfBufferDelimeter) {
+                return bldr.toString();
+            }
+        }
+        throw new ParseException("Buffer Underflow - end of buffer reached without a delimeter", ctx.mark);
     }
 
     private void validateLength(int length) throws ParseException {
