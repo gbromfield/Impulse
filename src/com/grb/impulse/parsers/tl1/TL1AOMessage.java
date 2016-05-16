@@ -1,8 +1,8 @@
-package com.grb.impulse.parsers.tl1;
+package com.ciena.logx.tl1;
 
-import com.grb.impulse.parsers.tl1.parser.CharacterList;
-import com.grb.impulse.parsers.tl1.parser.ParseContext;
-import com.grb.impulse.parsers.tl1.parser.TextParser;
+import com.ciena.logx.text.CharacterList;
+import com.ciena.logx.text.ParseContext;
+import com.ciena.logx.text.TextParser;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -77,7 +77,7 @@ public class TL1AOMessage extends TL1OutputMessage {
     }
 
     @Override
-    public boolean parse(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException {
+    public boolean parse(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException, ParseException {
         while(readBuffer.hasRemaining()) {
             byte b = readBuffer.get();
             _buffer.writeByte(b);
@@ -85,6 +85,7 @@ public class TL1AOMessage extends TL1OutputMessage {
                 throw new TL1MessageMaxSizeExceededException(String.format("Error: maximum %d character size of output message reached", TL1OutputMessage.MAX_SIZE));
             }
             if ((b == ';') && (_stack.size() == 0)) {
+                parseTL1();
                 return true;
             }
         }
