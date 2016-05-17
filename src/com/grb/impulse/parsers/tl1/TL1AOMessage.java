@@ -1,8 +1,10 @@
-package com.ciena.logx.tl1;
+package com.grb.impulse.parsers.tl1;
 
-import com.ciena.logx.text.CharacterList;
-import com.ciena.logx.text.ParseContext;
-import com.ciena.logx.text.TextParser;
+import com.grb.impulse.parsers.tl1.TL1MessageMaxSizeExceededException;
+import com.grb.impulse.parsers.tl1.TL1OutputMessage;
+import com.grb.impulse.parsers.tl1.parser.CharacterList;
+import com.grb.impulse.parsers.tl1.parser.ParseContext;
+import com.grb.impulse.parsers.tl1.parser.TextParser;
 
 import java.nio.ByteBuffer;
 import java.text.ParseException;
