@@ -6,6 +6,7 @@ import com.grb.util.property.*;
 import com.grb.util.property.impl.MapPropertySource;
 import com.grb.util.property.impl.SystemPropertySource;
 
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -32,6 +33,7 @@ public class TL1CTAGMatcher extends BaseTransform {
     public static final String CTAG_REGEX_PROPERTY_DEFAULT = "";
 
     protected String _ctag;
+    protected HashSet<String> _ctagSet;
 
     public TL1CTAGMatcher(String transformName, String instanceName,
                          TransformCreationContext transformCreationContext, Object... args) {
@@ -42,6 +44,7 @@ public class TL1CTAGMatcher extends BaseTransform {
     public void init() throws Exception {
         super.init();
         _ctag = getStringProperty(CTAG_REGEX_PROPERTY);
+        _ctagSet = null;
     }
 
     /**
@@ -54,15 +57,25 @@ public class TL1CTAGMatcher extends BaseTransform {
         if (_logger.isDebugEnabled()) {
             _logger.debug("onTL1In: \r\n" + Impulse.format(argMap));
         }
-        if ((_ctag != null) && (message instanceof TL1ResponseMessage)) {
-            if (((TL1ResponseMessage)message).getCTAG().matches(_ctag)) {
-                onCtagMatch(argMap);
-            } else {
-                onNoCtagMatch(argMap);
+        if (message instanceof TL1ResponseMessage) {
+            String respCtag = ((TL1ResponseMessage)message).getCTAG();
+            if (respCtag != null) {
+                if (_ctag != null) {
+                    if (respCtag.matches(_ctag)) {
+                        onCtagMatch(argMap);
+                        return;
+                    }
+                }
+                if (_ctagSet != null) {
+                    if (_ctagSet.contains(respCtag)) {
+                        _ctagSet.remove(respCtag);
+                        onCtagMatch(argMap);
+                        return;
+                    }
+                }
             }
-        } else {
-            onNoCtagMatch(argMap);
         }
+        onNoCtagMatch(argMap);
     }
 
     /**
@@ -102,7 +115,12 @@ public class TL1CTAGMatcher extends BaseTransform {
             _logger.debug("onSetCtag: \r\n" + Impulse.format(argMap));
         }
         if (message instanceof TL1InputMessage) {
-            _ctag = ((TL1InputMessage)message).getCTAG();
+            if (_ctagSet == null) {
+                String inputCtag = ((TL1InputMessage)message).getCTAG();
+                if (inputCtag != null) {
+                    _ctagSet.add(inputCtag);
+                }
+            }
         }
     }
 
