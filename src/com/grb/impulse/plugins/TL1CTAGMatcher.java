@@ -116,10 +116,11 @@ public class TL1CTAGMatcher extends BaseTransform {
         }
         if (message instanceof TL1InputMessage) {
             if (_ctagSet == null) {
-                String inputCtag = ((TL1InputMessage)message).getCTAG();
-                if (inputCtag != null) {
-                    _ctagSet.add(inputCtag);
-                }
+                _ctagSet = new HashSet<String>();
+            }
+            String inputCtag = ((TL1InputMessage)message).getCTAG();
+            if (inputCtag != null) {
+                _ctagSet.add(inputCtag);
             }
         }
     }
