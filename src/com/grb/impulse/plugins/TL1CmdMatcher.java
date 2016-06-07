@@ -227,7 +227,7 @@ public class TL1CmdMatcher extends BaseTransform {
                 }
                 success = false;
             } else {
-                if (matchStr.matches(givenStr)) {
+                if (givenStr.matches(matchStr)) {
                     bldr.append("MATCH");
                 } else {
                     bldr.append("NO MATCH");
