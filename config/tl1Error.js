@@ -21,7 +21,6 @@ function printConnectionContext(logger, connection, argMap, args) {
 }
 
 function sendTL1Error(logger, connection, argMap, args) {
-    printConnectionContext(logger, connection, argMap, args);
     var String = Java.type("java.lang.String");
     tl1Message = argMap.get("TL1AgentFramer.TL1Message.tl1Message");
     var response = new String("\r\n\n   \"" + tl1Message.getTid() + "\" " + tl1Message.getDate() +
