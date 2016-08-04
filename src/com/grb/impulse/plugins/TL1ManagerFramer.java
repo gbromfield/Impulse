@@ -58,6 +58,12 @@ public class TL1ManagerFramer extends BaseTransform {
         _decoder = new TL1ManagerDecoder();
     }
 
+    @Override
+    public void init() throws Exception {
+        super.init();
+        TL1InputMessage.MAX_SIZE = getIntegerProperty(MAX_INPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY);
+    }
+
     /**
      * [input] Data from the socket.
      *
