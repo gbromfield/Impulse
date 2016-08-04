@@ -58,6 +58,12 @@ public class TL1AgentFramer extends BaseTransform {
         _decoder = new TL1AgentDecoder();
     }
 
+    @Override
+    public void init() throws Exception {
+        super.init();
+        TL1OutputMessage.MAX_SIZE = getIntegerProperty(MAX_OUTPUT_MESSAGE_SIZE_IN_CHARS_PROPERTY);
+    }
+
     /**
      * [input] Data from the socket.
      *
