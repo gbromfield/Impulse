@@ -37,7 +37,7 @@ function sendTL1Error(logger, connection, argMap, args) {
         " " + timeFmt.format(now) + "\r\nM  " + tl1Message.getCTAG() +
         " DENY\r\n   SARB\r\n   /* Out To Lunch */\r\n;");
     var ByteBuffer = Java.type("java.nio.ByteBuffer");
-    var buffer = ByteBuffer.allocate(100);
+    var buffer = ByteBuffer.allocate(1000);
     buffer.put(response.getBytes());
     buffer.flip();
     argMap.put("TL1ManagerFramer.ByteBuffer.bytesTL1Message", buffer);

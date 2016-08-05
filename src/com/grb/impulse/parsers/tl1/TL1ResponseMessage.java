@@ -17,11 +17,24 @@ public class TL1ResponseMessage extends TL1OutputMessage {
             .setDelimiterChars(CharacterList.WHITESPACE_CHARS)
             .includeDelimiter(false);
 
+    private static final TextParser eolParser = new TextParser()
+            .setAllowedChars(CharacterList.CR_LF_CHARS)
+            .setDelimiterChars(CharacterList.ALL_CHARS)
+            .removeDelimeterChars(CharacterList.CR_LF_CHARS)
+            .includeDelimiter(false);
+
+    private static final TextParser bodyParser = new TextParser()
+            .setAllowedChars(CharacterList.ALL_CHARS)
+            .removeAllowedChar(';')
+            .addDelimeterChar(';')
+            .includeDelimiter(false);
+
     private String _tid;
     private String _date;
     private String _time;
     private String _ctag;
     private String _complCode;
+    private String _body;
 
     public TL1ResponseMessage(byte[] preamble, int offset, int messageStartIdx, int length) throws TL1MessageMaxSizeExceededException {
         super(preamble, offset, messageStartIdx, length);
@@ -30,6 +43,7 @@ public class TL1ResponseMessage extends TL1OutputMessage {
         _time = null;
         _ctag = null;
         _complCode = null;
+        _body = null;
     }
 
     public String getTid() { return _tid; }
@@ -43,6 +57,8 @@ public class TL1ResponseMessage extends TL1OutputMessage {
     }
 
     public String getComplCode() { return _complCode; }
+
+    public String getBody() { return _body; }
 
     @Override
     public boolean parse(ByteBuffer readBuffer) throws TL1MessageMaxSizeExceededException, ParseException {
@@ -78,5 +94,7 @@ public class TL1ResponseMessage extends TL1OutputMessage {
         _ctag = ctagParser.parse(pc);
         manadatorySpacesParser.parse(pc);
         _complCode = completonCodeParser.parse(pc);
+        eolParser.parse(pc);
+        _body = bodyParser.parse(pc);
     }
 }
