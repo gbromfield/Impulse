@@ -38,7 +38,7 @@ function appendToResponse(logger, connection, argMap, args) {
     tl1Message = argMap.get("TL1AgentFramer.TL1Message.tl1Message");
     var response = new String("\r\n\n   \"" + tl1Message.getTid() + "\" " + tl1Message.getDate() +
         " " + tl1Message.getTime() + "\r\nM  " + tl1Message.getCTAG() + " " + tl1Message.getComplCode() + "\r\n" +
-        "   /*THIS IS A TEST*/\r\n" +
+        "   \"BLUB::PROVPEC=42,CTYPE=\"Type 1\",LABEL=\"\":OOS-AU,UEQ\"\r\n" +
         tl1Message.getBody());
     var ByteBuffer = Java.type("java.nio.ByteBuffer");
     var buffer = ByteBuffer.allocate(10000);
