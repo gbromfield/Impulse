@@ -25,6 +25,7 @@ import org.apache.sshd.common.future.SshFutureListener;
 import org.apache.sshd.common.io.IoInputStream;
 import org.apache.sshd.common.io.IoOutputStream;
 import org.apache.sshd.common.io.IoReadFuture;
+import org.apache.sshd.common.io.WritePendingException;
 import org.apache.sshd.common.util.Buffer;
 
 import javax.management.MBeanException;
@@ -535,7 +536,11 @@ public class SSHTunnel extends BaseTransform implements SessionListener {
         if (_logger.isDebugEnabled()) {
             _logger.debug("writeToServer: \r\n" + Impulse.GlobalByteArrayFormatter.format(buffer));
         }
-        _serverSideOutput.write(new Buffer(buffer.array(), buffer.arrayOffset(), buffer.remaining()));
+        try {
+            _serverSideOutput.write(new Buffer(buffer.array(), buffer.arrayOffset(), buffer.remaining()));
+        } catch(WritePendingException e) {
+            // ignore
+        }
     }
 
     /**
