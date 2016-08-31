@@ -123,9 +123,23 @@ public class TL1AOGenerator extends BaseTransform {
     public static final String AO_RATE_IN_MSGS_PER_SEC_PROPERTY = "aoRate";
 
     /**
-     * AO to send.
+     * AO 1 to send.
      */
-    public static final String AO_PROPERTY = "ao";
+    public static final String AO_1_PROPERTY = "ao_1";
+
+    /**
+     * AO 2 to send.
+     */
+    public static final String AO_2_PROPERTY = "ao_2";
+
+    /**
+     * AO_1 to AO_2 proportion to send.
+     * For example:
+     * 1:0, send all AO_1
+     * 1:1, send AO_1 and AO_2 alternating
+     * 100:1, send 100 AO_1 to 1 AO_2
+     */
+    public static final String AO_PROPORTION_PROPERTY = "ao_proportion";
 
     /**
      * ATAG to send.
@@ -150,18 +164,6 @@ public class TL1AOGenerator extends BaseTransform {
     public static final int AO_RATE_IN_MSGS_PER_SEC_PROPERTY_DEFAULT = 1;
 
     /**
-     * Default regex verb
-     * Specifiable in the configuration file or command line.
-     */
-    public static final String AO_PROPERTY_DEFAULT = "\r\n\n" +
-            "   PV0414A 93-06-02 12:00:00\r\n" +
-            "A  <ATAG> REPT PM T1\r\n" +
-            "   \"AID-T1-1:CVL,50\"\r\n" +
-            "   \"AID-T1-2:CVL,10\"\r\n" +
-            "   \"AID-T1-n:CVL,22\"\r\n" +
-            ";";
-
-    /**
      * Default ATAG
      * Specifiable in the configuration file or command line.
      */
@@ -175,11 +177,11 @@ public class TL1AOGenerator extends BaseTransform {
 
     private int _aoNum;
     private int _aoRate;
-    private String _ao;
+    private String[] _aos;
+    private int[] _aoProportions;
     private Property<Integer> _atagProp;
     private PropertySource<Integer> _atagJMXSource;
     private int _reportInterval;
-
 //    private TL1AgentDecoder _aoDecoder;
 
     public TL1AOGenerator(String transformName, String instanceName,
@@ -193,7 +195,14 @@ public class TL1AOGenerator extends BaseTransform {
         super.init();
         _aoNum = getIntegerProperty(AO_NUMBER_PROPERTY);
         _aoRate = getIntegerProperty(AO_RATE_IN_MSGS_PER_SEC_PROPERTY);
-        _ao = getStringProperty(AO_PROPERTY);
+        _aos = new String[2];
+        _aos[0] = getStringProperty(AO_1_PROPERTY);
+        _aos[1] = getStringProperty(AO_2_PROPERTY);
+        String aoProportionStr = getStringProperty(AO_PROPORTION_PROPERTY);
+        String[] aoProportionArr = aoProportionStr.split(":");
+        _aoProportions = new int[2];
+        _aoProportions[0] = Integer.parseInt(aoProportionArr[0]);
+        _aoProportions[1] = Integer.parseInt(aoProportionArr[1]);
         _reportInterval = getIntegerProperty(REPORT_INTERVAL_PROPERTY);
         // get global template property
         Iterator<Property<?>> it = getTransformContext().getProperties().values().iterator();
@@ -220,12 +229,21 @@ public class TL1AOGenerator extends BaseTransform {
         }
         int aoAtag = _atagProp.getValue();
         ArrayList<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
+        int index = 0;
         for(int i = aoAtag; i < _aoNum + aoAtag; i++) {
-            String aoToSend = _ao.replaceAll("<ATAG>", String.valueOf(i));
+            int rem = index % (_aoProportions[0] + _aoProportions[1]);
+            String ao;
+            if (rem < _aoProportions[0]) {
+                ao = _aos[0];
+            } else {
+                ao = _aos[1];
+            }
+            String aoToSend = ao.replaceAll("<ATAG>", String.valueOf(i));
             ByteBuffer buffer = ByteBuffer.allocate(aoToSend.length());
             buffer.put(aoToSend.getBytes());
             buffer.flip();
             buffers.add(buffer);
+            index++;
         }
         AORunnable aoRunnable = new AORunnable(argMap, buffers);
         aoRunnable.start();
@@ -295,11 +313,25 @@ public class TL1AOGenerator extends BaseTransform {
         p.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "Report Interval value");
         props.put(p.getId(), p);
 
-        Property<String> ps = new Property<String>(AO_PROPERTY, AO_PROPERTY_DEFAULT, false,
+        Property<String> ps = new Property<String>(AO_1_PROPERTY, "", false,
                 new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
-                new SystemPropertySource<String>(ctx.getPropertyString(AO_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
-                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(AO_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
-        ps.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "AO to send");
+                new SystemPropertySource<String>(ctx.getPropertyString(AO_1_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(AO_1_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+        ps.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "AO 1 to send");
+        props.put(ps.getId(), ps);
+
+        ps = new Property<String>(AO_2_PROPERTY, "", false,
+                new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
+                new SystemPropertySource<String>(ctx.getPropertyString(AO_2_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(AO_2_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+        ps.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "AO 2 to send");
+        props.put(ps.getId(), ps);
+
+        ps = new Property<String>(AO_PROPORTION_PROPERTY, "1:0", false,
+                new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
+                new SystemPropertySource<String>(ctx.getPropertyString(AO_PROPORTION_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(AO_PROPORTION_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+        ps.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "AO proportion [AO_1 : AO_2], for example 1:1 for equal proportion to both AOs");
         props.put(ps.getId(), ps);
     }
 }
