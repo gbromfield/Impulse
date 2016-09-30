@@ -147,6 +147,14 @@ public class TL1AOGenerator extends BaseTransform {
     public static final String ATAG_PROPERTY = "atag";
 
     /**
+     * ATAG sequence to send.
+     * Example: 1,2,4
+     * Means first ao will have atag 1, second 2, third 4
+     * Subsequence values will be the last value incremented by 1
+     */
+    public static final String ATAG_SEQUENCE_PROPERTY = "atagSequence";
+
+    /**
      * Interval between reports.
      */
     public static final String REPORT_INTERVAL_PROPERTY = "reportInterval";
@@ -182,6 +190,8 @@ public class TL1AOGenerator extends BaseTransform {
     private Property<Integer> _atagProp;
     private PropertySource<Integer> _atagJMXSource;
     private int _reportInterval;
+    private int[] _atagSequence;
+
 //    private TL1AgentDecoder _aoDecoder;
 
     public TL1AOGenerator(String transformName, String instanceName,
@@ -204,6 +214,16 @@ public class TL1AOGenerator extends BaseTransform {
         _aoProportions[0] = Integer.parseInt(aoProportionArr[0]);
         _aoProportions[1] = Integer.parseInt(aoProportionArr[1]);
         _reportInterval = getIntegerProperty(REPORT_INTERVAL_PROPERTY);
+        String atagSeqStr = getStringProperty(ATAG_SEQUENCE_PROPERTY);
+        if (atagSeqStr.isEmpty()) {
+            _atagSequence = null;
+        } else {
+            String[] atagSeqArr = atagSeqStr.split(",");
+            _atagSequence = new int[atagSeqArr.length];
+            for(int i = 0; i < atagSeqArr.length; i++) {
+                _atagSequence[i] = Integer.parseInt(atagSeqArr[i]);
+            }
+        }
         // get global template property
         Iterator<Property<?>> it = getTransformContext().getProperties().values().iterator();
         while(it.hasNext()) {
@@ -238,7 +258,17 @@ public class TL1AOGenerator extends BaseTransform {
             } else {
                 ao = _aos[1];
             }
-            String aoToSend = ao.replaceAll("<ATAG>", String.valueOf(i));
+            String aoToSend;
+            if (_atagSequence == null) {
+                aoToSend = ao.replaceAll("<ATAG>", String.valueOf(i));
+            } else {
+                if (index < _atagSequence.length) {
+                    aoToSend = ao.replaceAll("<ATAG>", String.valueOf(_atagSequence[index]));
+                } else {
+                    aoToSend = ao.replaceAll("<ATAG>", String.valueOf(_atagSequence[_atagSequence.length-1] +
+                            (index - _atagSequence.length + 1)));
+                }
+            }
             ByteBuffer buffer = ByteBuffer.allocate(aoToSend.length());
             buffer.put(aoToSend.getBytes());
             buffer.flip();
@@ -325,6 +355,13 @@ public class TL1AOGenerator extends BaseTransform {
                 new SystemPropertySource<String>(ctx.getPropertyString(AO_2_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
                 new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(AO_2_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
         ps.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "AO 2 to send");
+        props.put(ps.getId(), ps);
+
+        ps = new Property<String>(ATAG_SEQUENCE_PROPERTY, "", true,
+                new PropertySource<String>(JMXUtils.JMX_SOURCE, PropertySource.PRIORITY_1),
+                new SystemPropertySource<String>(ctx.getPropertyString(ATAG_SEQUENCE_PROPERTY), PropertySource.PRIORITY_2, PropertySource.NULL_INVALID),
+                new MapPropertySource<String>(Impulse.CONFIG_FILE_SOURCE, ctx.getPropertyString(ATAG_SEQUENCE_PROPERTY), Impulse.ConfigProperties, PropertySource.PRIORITY_3, PropertySource.NULL_INVALID));
+        ps.getUserDataMap().put(Impulse.PROPERTY_DESCRIPTION_KEY, "ATAG sequnce");
         props.put(ps.getId(), ps);
 
         ps = new Property<String>(AO_PROPORTION_PROPERTY, "1:0", false,
