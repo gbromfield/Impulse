@@ -36,12 +36,15 @@ public class TL1AOGenerator extends BaseTransform {
         }
 
         public void start() {
-            if (_logger.isInfoEnabled()) {
-                _logger.info(String.format("Starting %d message AO Stream at %d messages/second, reporting after %d messages\r\n", _aoNum, _aoRate, _reportInterval));
-            }
             if (_aoRate > 1000) {
+                if (_logger.isInfoEnabled()) {
+                    _logger.info(String.format("Starting %d message AO Stream at the fastest possible, reporting after %d messages\r\n", _aoNum, _reportInterval));
+                }
                 _timer.schedule(this, 1);
             } else {
+                if (_logger.isInfoEnabled()) {
+                    _logger.info(String.format("Starting %d message AO Stream at %d messages/second, reporting after %d messages\r\n", _aoNum, _aoRate, _reportInterval));
+                }
                 _timer.scheduleAtFixedRate(this, 0, _rate);
             }
             _startTimestamp = System.currentTimeMillis();
@@ -52,13 +55,18 @@ public class TL1AOGenerator extends BaseTransform {
         public void run() {
             if (_aoRate > 1000) {
                 long ts = System.currentTimeMillis();
+                long intervalts = ts;
                 for(int i = 0; i < _buffers.size(); i++) {
                     onAO(_argMap, _buffers.get(i));
                     incrementAtag();
                     if (((i+1) % _reportInterval) == 0) {
-                        long elapsed = System.currentTimeMillis() - ts;
-                        long rate = (long)((double)i / ((double)elapsed / 1000.0));
-                        _logger.info(String.format("Finished %d message AO Stream at %d messages/second\r\n", i, rate));
+                        long current = System.currentTimeMillis();
+                        long totalElapsed = current - ts;
+                        long rate = (long)((double)i / ((double)totalElapsed / 1000.0));
+                        long intervalElapsed = current - intervalts;
+                        long intervalRate = (long)((double)_reportInterval / ((double)intervalElapsed / 1000.0));
+                        _logger.info(String.format("Finished %d message AO Stream at average %d messages/second, interval %d messages/second\r\n", i+1, rate, intervalRate));
+                        intervalts = System.currentTimeMillis();
                     }
                 }
                 long elapsed = System.currentTimeMillis() - ts;
