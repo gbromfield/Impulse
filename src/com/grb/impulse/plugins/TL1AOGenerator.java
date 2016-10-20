@@ -39,7 +39,7 @@ public class TL1AOGenerator extends BaseTransform {
             if (_logger.isInfoEnabled()) {
                 _logger.info(String.format("Starting %d message AO Stream at %d messages/second, reporting after %d messages\r\n", _aoNum, _aoRate, _reportInterval));
             }
-            if (_rate > 1000) {
+            if (_aoRate > 1000) {
                 _timer.schedule(this, 1);
             } else {
                 _timer.scheduleAtFixedRate(this, 0, _rate);
@@ -50,12 +50,20 @@ public class TL1AOGenerator extends BaseTransform {
 
         @Override
         public void run() {
-            if (_rate > 1000) {
+            if (_aoRate > 1000) {
+                long ts = System.currentTimeMillis();
                 for(int i = 0; i < _buffers.size(); i++) {
                     onAO(_argMap, _buffers.get(i));
                     incrementAtag();
+                    if (((i+1) % _reportInterval) == 0) {
+                        long elapsed = System.currentTimeMillis() - ts;
+                        long rate = (long)((double)i / ((double)elapsed / 1000.0));
+                        _logger.info(String.format("Finished %d message AO Stream at %d messages/second\r\n", i, rate));
+                    }
                 }
-                _logger.info(String.format("Finished %d message AO Stream at %d messages/second\r\n", _aoNum, _aoRate));
+                long elapsed = System.currentTimeMillis() - ts;
+                long rate = (long)((double)_aoNum / ((double)elapsed / 1000.0));
+                _logger.info(String.format("Finished %d message AO Stream at %d messages/second\r\n", _aoNum, rate));
             } else {
                 if (_index >= _buffers.size()) {
                     _timer.cancel();
